@@ -59,11 +59,11 @@ set(SOURCES
     WPA/FlowSensitiveStat.cpp
     WPA/TypeAnalysis.cpp
     WPA/WPAPass.cpp
-#    DDA/ContextDDA.cpp
-#    DDA/DDAClient.cpp
-#    DDA/DDAPass.cpp
-#    DDA/DDAStat.cpp
-#    DDA/FlowDDA.cpp
+    DDA/ContextDDA.cpp
+    DDA/DDAClient.cpp
+    DDA/DDAPass.cpp
+    DDA/DDAStat.cpp
+    DDA/FlowDDA.cpp
 #    MTA/FSMPTA.cpp
 #    MTA/LockAnalysis.cpp
 #    MTA/MHP.cpp
@@ -75,8 +75,8 @@ set(SOURCES
 #    MTA/TCT.cpp
     )
 
-add_llvm_library(Svf ${SOURCES})
-add_llvm_library(LLVMSvf ${SOURCES})
+add_llvm_Library(Svf ${SOURCES})
+add_llvm_Library(LLVMSvf ${SOURCES})
 
 link_directories( ${CMAKE_BINARY_DIR}/lib/Cudd )
 llvm_map_components_to_libnames(llvm_libs bitwriter core ipo irreader instcombine instrumentation target linker analysis scalaropts support )
