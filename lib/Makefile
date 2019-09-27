@@ -8,6 +8,6 @@ LEVEL=..
 #
 # List all of the subdirectories that we will compile.
 #
-DIRS=CUDD Util MemoryModel MSSA WPA SABER MTA
+DIRS=CUDD Util MemoryModel MSSA WPA SABER MTA DDA
 
 include $(LEVEL)/Makefile.common
