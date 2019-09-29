@@ -13,6 +13,7 @@
 #include "MemoryModel/PointerAnalysis.h"
 #include "DDA/DDAClient.h"
 #include "Util/SCC.h"
+#include "Util/BasicTypes.h"
 
 /*!
  * Demand-Driven Pointer Analysis.
@@ -64,7 +65,6 @@ public:
         return "DDAPass";
     }
 
-private:
     /// Print queries' pts
     void printQueryPTS();
     /// Create pointer analysis according to specified kind and analyze the module.

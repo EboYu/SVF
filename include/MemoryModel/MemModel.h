@@ -345,7 +345,10 @@ public:
 
     /// Operator overloading
     inline bool operator==(const MemObj &mem) const {
-        return refVal == mem.getRefVal();
+        if (refVal == mem.getRefVal())
+            return true;
+        else
+            return false;
     }
 
     /// Clean up memory
