@@ -59,11 +59,11 @@ public:
      * Comparison between two elements.
      */
     ///@{
-    inline bool operator == (const CondVar & rhs) const {
+    inline bool operator== (const CondVar & rhs) const {
         return (m_id == rhs.get_id() && m_cond == rhs.get_cond());
     }
 
-    inline bool operator != (const CondVar & rhs) const {
+    inline bool operator!= (const CondVar & rhs) const {
         return !(*this == rhs);
     }
     ///@}
@@ -81,7 +81,7 @@ public:
     /**
      * Less than implementation.
      */
-    inline bool operator < (const CondVar & rhs) const {
+    inline bool operator< (const CondVar & rhs) const {
         if(m_id != rhs.get_id())
             return m_id < rhs.get_id();
         else

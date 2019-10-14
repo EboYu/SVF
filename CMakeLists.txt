@@ -11,7 +11,7 @@ if(NOT COMMAND add_llvm_library)
 	if(CMAKE_BUILD_TYPE MATCHES "Debug")
 		set(CMAKE_CXX_FLAGS "-std=gnu++11 -O0 -fno-rtti")
 	else()
-		set(CMAKE_CXX_FLAGS "-std=gnu++11 -O3 -fno-rtti")
+		set(CMAKE_CXX_FLAGS "-std=gnu++11 -fPIC -O3 -fno-rtti")
 	endif()
 
 	find_package(LLVM REQUIRED CONFIG)

@@ -48,7 +48,7 @@ public:
     typedef std::map<const SVFGNode*,ProgSlice*> SVFGNodeToSliceMap;
     typedef SVFGNodeSet::iterator SVFGNodeSetIter;
     typedef CxtDPItem DPIm;
-    typedef std::set<DPIm> DPImSet;							///< dpitem set
+    typedef std::set<CxtDPItem> DPImSet;							///< dpitem set
     typedef std::map<const SVFGNode*, DPImSet> SVFGNodeToDPItemsMap; 	///< map a SVFGNode to its visited dpitems
 
 private:
@@ -186,7 +186,7 @@ public:
 
 protected:
     /// Forward traverse
-    virtual inline void forwardProcess(const DPIm& item) {
+    virtual inline void forwardProcess(const CxtDPItem& item) {
         const SVFGNode* node = getNode(item.getCurNodeID());
         if(isSink(node)) {
             addSinkToCurSlice(node);
@@ -196,26 +196,26 @@ protected:
             addToCurForwardSlice(node);
     }
     /// Backward traverse
-    virtual inline void backwardProcess(const DPIm& item) {
+    virtual inline void backwardProcess(const CxtDPItem& item) {
         const SVFGNode* node = getNode(item.getCurNodeID());
         if(isInCurForwardSlice(node)) {
             addToCurBackwardSlice(node);
         }
     }
     /// Propagate information forward by matching context
-    virtual void forwardpropagate(const DPIm& item, SVFGEdge* edge);
+    virtual void forwardpropagate(const CxtDPItem& item, SVFGEdge* edge);
     /// Propagate information backward without matching context, as forward analysis already did it
-    virtual void backwardpropagate(const DPIm& item, SVFGEdge* edge);
+    virtual void backwardpropagate(const CxtDPItem& item, SVFGEdge* edge);
     /// Whether has been visited or not, in order to avoid recursion on SVFG
     //@{
-    inline bool forwardVisited(const SVFGNode* node, const DPIm& item) {
+    inline bool forwardVisited(const SVFGNode* node, const CxtDPItem& item) {
         SVFGNodeToDPItemsMap::iterator it = nodeToDPItemsMap.find(node);
         if(it!=nodeToDPItemsMap.end())
             return it->second.find(item)!=it->second.end();
         else
             return false;
     }
-    inline void addForwardVisited(const SVFGNode* node, const DPIm& item) {
+    inline void addForwardVisited(const SVFGNode* node, const CxtDPItem& item) {
         nodeToDPItemsMap[node].insert(item);
     }
     inline bool backwardVisited(const SVFGNode* node) {

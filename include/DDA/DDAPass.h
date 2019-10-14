@@ -7,8 +7,8 @@
  */
 
 
-#ifndef WPA_H_
-#define WPA_H_
+#ifndef DDAPASS_H_
+#define DDAPASS_H_
 
 #include "MemoryModel/PointerAnalysis.h"
 #include "DDA/DDAClient.h"
@@ -87,4 +87,4 @@ public:
 };
 
 
-#endif /* WPA_H_ */
+#endif /* DDAPASS_H_ */

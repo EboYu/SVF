@@ -520,6 +520,53 @@ void PointerAnalysis::dumpPts(NodeID ptr, const PointsTo& pts) {
     }
 }
 
+std::string PointerAnalysis::dumpTxtPts(NodeID ptr, const PointsTo& pts) {
+    std::string str;
+    raw_string_ostream rawstr(str);
+    const PAGNode* node = pag->getPAGNode(ptr);
+    /// print the points-to set of node which has the maximum pts size.
+    if (SVFUtil::isa<DummyObjPN> (node)) {
+        rawstr << "##<Dummy Obj > id:" << node->getId();
+    } else if (!SVFUtil::isa<DummyValPN>(node) && !SVFModule::pagReadFromTXT()) {
+        rawstr << "##<" << node->getValue()->getName() << "> ";
+        rawstr << "Source Loc: " << getSourceLoc(node->getValue());
+    }
+    rawstr << "\nPtr " << node->getId() << " ";
+
+    if (pts.empty()) {
+        rawstr << "\t\tPointsTo: {empty}\n\n";
+    } else {
+        rawstr << "\t\tPointsTo: { ";
+        for (PointsTo::iterator it = pts.begin(), eit = pts.end(); it != eit;
+                ++it)
+            rawstr << *it << " ";
+        rawstr << "}\n\n";
+    }
+
+    rawstr << "";
+
+    for (NodeBS::iterator it = pts.begin(), eit = pts.end(); it != eit; ++it) {
+        const PAGNode* node = pag->getPAGNode(*it);
+        if(SVFUtil::isa<ObjPN>(node) == false)
+            continue;
+        NodeID ptd = node->getId();
+        rawstr << "!!Target NodeID " << ptd << "\t [";
+        const PAGNode* pagNode = pag->getPAGNode(ptd);
+        if (SVFUtil::isa<DummyValPN>(node))
+            rawstr << "DummyVal\n";
+        else if (SVFUtil::isa<DummyObjPN>(node))
+            rawstr << "Dummy Obj id: " << node->getId() << "]\n";
+        else {
+        		if(!SVFModule::pagReadFromTXT()){
+        			rawstr << "<" << pagNode->getValue()->getName() << "> ";
+        			rawstr << "Source Loc: " << getSourceLoc(pagNode->getValue()) << "] \n";
+        		}
+        }
+    }
+
+    return rawstr.str();
+}
+
 
 /*!
  * Dump all points-to including top-level (ValPN) and address-taken (ObjPN) variables

@@ -64,15 +64,6 @@ set(SOURCES
     DDA/DDAPass.cpp
     DDA/DDAStat.cpp
     DDA/FlowDDA.cpp
-#    MTA/FSMPTA.cpp
-#    MTA/LockAnalysis.cpp
-#    MTA/MHP.cpp
-#    MTA/MTAAnnotator.cpp
-#    MTA/MTA.cpp
-#    MTA/MTAResultValidator.cpp
-#    MTA/MTAStat.cpp
-#    MTA/PCG.cpp
-#    MTA/TCT.cpp
     )
 
 add_llvm_Library(Svf SHARED ${SOURCES})
@@ -86,6 +77,8 @@ if ( CMAKE_SYSTEM_NAME MATCHES "Darwin")
 else()
     target_link_libraries(Svf ${llvm_libs})
 endif()
+
+# target_link_libraries(Svf /home/yinbo/disk/workspace/SUPA-J/swig/SUPA_wrap.o)
 
 if(DEFINED IN_SOURCE_BUILD)
     add_dependencies(Svf intrinsics_gen)

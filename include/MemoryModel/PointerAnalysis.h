@@ -371,6 +371,7 @@ public:
     virtual void dumpAllPts() {}
     virtual void dumpCPts() {}
     virtual void dumpPts(NodeID ptr, const PointsTo& pts);
+    std::string dumpTxtPts(NodeID ptr, const PointsTo& pts);
     void printIndCSTargets();
     void dumpAllTypes();
     //@}
@@ -391,6 +392,11 @@ public:
     const TypeSystem *getTypeSystem() const {
         return typeSystem;
     }
+
+    // friend std::ostream &operator<< (std::ostream &os, PointerAnalysis &ptr){
+    //     // os << ptr.toString();
+    //     return os;
+    // }
 };
 
 /*!
