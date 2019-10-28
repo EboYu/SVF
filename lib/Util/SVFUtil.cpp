@@ -347,7 +347,9 @@ std::string SVFUtil::getSourceLoc(const Value* val) {
 
     std::string str;
     raw_string_ostream rawstr(str);
+    
     if (const Instruction *inst = SVFUtil::dyn_cast<Instruction>(val)) {
+        rawstr<< inst->getFunction()->getName() <<":" << *inst;
         if (SVFUtil::isa<AllocaInst>(inst)) {
             for (llvm::DbgInfoIntrinsic *DII : FindDbgAddrUses(const_cast<Instruction*>(inst))) {
                 if (llvm::DbgDeclareInst *DDI = SVFUtil::dyn_cast<llvm::DbgDeclareInst>(DII)) {

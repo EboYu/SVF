@@ -520,6 +520,20 @@ void PointerAnalysis::dumpPts(NodeID ptr, const PointsTo& pts) {
     }
 }
 
+std::string PointerAnalysis::dumpTxtPointer(NodeID ptr, const PointsTo& pts) {
+    std::string str;
+    raw_string_ostream rawstr(str);
+    const PAGNode* node = pag->getPAGNode(ptr);
+    /// print the points-to set of node which has the maximum pts size.
+    if (!SVFUtil::isa<DummyObjPN>(node) && ! SVFUtil::isa<DummyValPN>(node)){
+        rawstr << "##<" << node->getValue()->getName() << "> ";
+        rawstr << "Source Loc: " << getSourceLoc(node->getValue());
+        rawstr << "---> NodeID " << node->getId() << "\n";
+    }
+
+    return rawstr.str();
+}
+
 std::string PointerAnalysis::dumpTxtPts(NodeID ptr, const PointsTo& pts) {
     std::string str;
     raw_string_ostream rawstr(str);

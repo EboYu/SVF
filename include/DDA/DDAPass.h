@@ -77,7 +77,8 @@ public:
     bool edgeInSVFGSCC(const SVFGSCC* svfgSCC,const SVFGEdge* edge);
     /// Return TRUE if this edge is inside a SVFG SCC, i.e., src node and dst node are in the same SCC on the SVFG.
     bool edgeInCallGraphSCC(PointerAnalysis* pta,const SVFGEdge* edge);
-
+    /// Print the map between node id and pointer
+    void dumpNodeID();
     void collectCxtInsenEdgeForRecur(PointerAnalysis* pta, const SVFG* svfg,SVFGEdgeSet& insensitveEdges);
     void collectCxtInsenEdgeForVFCycle(PointerAnalysis* pta, const SVFG* svfg,const SVFGSCC* svfgSCC, SVFGEdgeSet& insensitveEdges);
 

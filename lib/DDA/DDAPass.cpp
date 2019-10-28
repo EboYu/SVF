@@ -40,6 +40,9 @@ static llvm::cl::opt<bool> printCPts("cpts", llvm::cl::init(false),
 static llvm::cl::opt<bool> printQueryPts("print-query-pts", llvm::cl::init(false),
                                    llvm::cl::desc("Dump queries' conditional points-to set "));
 
+static llvm::cl::opt<bool> dumpNodeId("dumpmap", llvm::cl::init(false),
+                                   llvm::cl::desc("Dump the map between node id and pointer"));                                   
+
 static llvm::cl::opt<bool> WPANUM("wpanum", llvm::cl::init(false),
                             llvm::cl::desc("collect WPA FS number only "));
 
@@ -108,8 +111,9 @@ void DDAPass::selectClient(SVFModule module) {
 /// Create pointer analysis according to specified kind and analyze the module.
 void DDAPass::runPointerAnalysis(SVFModule module, u32_t kind)
 {
-
+    //set max path limit
     VFPathCond::setMaxPathLen(maxPathLen);
+    //set max context limit
     ContextCond::setMaxCxtLen(maxContextLen);
 
     /// Initialize pointer analysis.
@@ -145,6 +149,8 @@ void DDAPass::runPointerAnalysis(SVFModule module, u32_t kind)
 
         if (printQueryPts)
             printQueryPTS();
+        if (dumpNodeId)
+            dumpNodeID();
     }
 }
 
@@ -309,6 +315,20 @@ void DDAPass::printQueryPTS() {
     for (NodeSet::iterator it = candidates.begin(), eit = candidates.end(); it != eit; ++it) {
         const PointsTo& pts = _pta->getPts(*it);
         fOut << _pta->dumpTxtPts(*it,pts) <<std::endl;
+    }
+    fOut.close();
+}
+
+
+void DDAPass::dumpNodeID(){
+    std::ofstream fOut("pointermap.txt");
+    std::string str="Pointer and Node ID map \n";
+    raw_string_ostream rawstr(str);
+    fOut << rawstr.str();
+    for (NodeSet::iterator nIter = _pta->getAllValidPtrs().begin();
+            nIter != _pta->getAllValidPtrs().end(); ++nIter) {
+        const PointsTo& pts = _pta->getPts(*nIter);
+        fOut << _pta->dumpTxtPointer(*nIter,pts) << std::endl;
     }
     fOut.close();
 }

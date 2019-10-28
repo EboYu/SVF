@@ -372,6 +372,7 @@ public:
     virtual void dumpCPts() {}
     virtual void dumpPts(NodeID ptr, const PointsTo& pts);
     std::string dumpTxtPts(NodeID ptr, const PointsTo& pts);
+    std::string dumpTxtPointer(NodeID ptr, const PointsTo& pts);
     void printIndCSTargets();
     void dumpAllTypes();
     //@}
