@@ -31,7 +31,7 @@
 #include "Util/Conditions.h"
 #include "Util/SVFUtil.h"
 
-static llvm::cl::opt<unsigned> maxBddSize("maxbddsize",  llvm::cl::init(100000),
+static llvm::cl::opt<unsigned> maxBddSize("maxbddsize",  llvm::cl::init(200000),
                                     llvm::cl::desc("Maximum context limit for DDA"));
 
 /// Operations on conditions.

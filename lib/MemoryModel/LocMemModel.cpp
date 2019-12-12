@@ -126,89 +126,92 @@ bool LocSymTableInfo::computeGepOffset(const User *V, LocationSet& ls) {
  * Collect array information
  */
 void LocSymTableInfo::collectArrayInfo(const llvm::ArrayType *ty) {
-	/*
-    StInfo *stinfo = new StInfo();
+
+    StInfo* stinfo = new StInfo();
     typeToFieldInfo[ty] = stinfo;
 
-    /// If this is an array type, calculate the outmost array
-    /// information and append them to the inner elements' type
-    /// information later.
     u64_t out_num = ty->getNumElements();
-    const Type* elemTy = ty->getElementType();
+    const llvm::Type* elemTy = ty->getElementType();
     u32_t out_stride = getTypeSizeInBytes(elemTy);
-
-    /// Array itself only has one field which is the inner most element
-    stinfo->addOffsetWithType(0, elemTy);
-
-    while (const ArrayType* aty = dyn_cast<ArrayType>(elemTy)) {
+    while (const ArrayType* aty = SVFUtil::dyn_cast<ArrayType>(elemTy)) {
         out_num *= aty->getNumElements();
         elemTy = aty->getElementType();
         out_stride = getTypeSizeInBytes(elemTy);
     }
 
+    /// Array itself only has one field which is the inner most element
+    stinfo->addFldWithType(0, 0, elemTy);
+
     /// Array's flatten field infor is the same as its element's
-    /// flatten infor with an additional slot for array's element
-    /// number and stride pair.
+    /// flatten infor.
     StInfo* elemStInfo = getStructInfo(elemTy);
     u32_t nfE = elemStInfo->getFlattenFieldInfoVec().size();
     for (u32_t j = 0; j < nfE; j++) {
-        u32_t off = elemStInfo->getFlattenFieldInfoVec()[j].getFlattenOffset();
+		u32_t idx = elemStInfo->getFlattenFieldInfoVec()[j].getFlattenFldIdx();
+		u32_t off = elemStInfo->getFlattenFieldInfoVec()[j].getFlattenByteOffset();
         const Type* fieldTy = elemStInfo->getFlattenFieldInfoVec()[j].getFlattenElemTy();
         FieldInfo::ElemNumStridePairVec pair = elemStInfo->getFlattenFieldInfoVec()[j].getElemNumStridePairVect();
         /// append the additional number
         pair.push_back(std::make_pair(out_num, out_stride));
-        FieldInfo field(off, fieldTy, pair);
+        FieldInfo field(idx, off, fieldTy, pair);
         stinfo->getFlattenFieldInfoVec().push_back(field);
     }
-    */
+    
 }
 
 
 /*
  * Recursively collect the memory layout information for a struct type
  */
-void LocSymTableInfo::collectStructInfo(const StructType *ty) {
-	/*
-    StInfo *stinfo = new StInfo();
-    typeToFieldInfo[ty] = stinfo;
+void LocSymTableInfo::collectStructInfo(const StructType *sty) {
+	
+    /// The struct info should not be processed before
+    StInfo* stinfo = new StInfo();
+    typeToFieldInfo[sty] = stinfo;
 
-    const StructLayout *stTySL = getDataLayout(getModule().getMainLLVMModule())->getStructLayout( const_cast<StructType *>(ty) );
-
+    // Number of fields after flattening the struct
+    u32_t nf = 0;
+    // field of the current struct
     u32_t field_idx = 0;
-    for (StructType::element_iterator it = ty->element_begin(), ie =
-                ty->element_end(); it != ie; ++it, ++field_idx) {
+    for (StructType::element_iterator it = sty->element_begin(), ie =
+                sty->element_end(); it != ie; ++it, ++field_idx) {
         const Type *et = *it;
-
-        // The offset is where this element will be placed in the struct.
         // This offset is computed after alignment with the current struct
-        u64_t eOffsetInBytes = stTySL->getElementOffset(field_idx);
-
+        u64_t eOffsetInBytes = getTypeSizeInBytes(sty, field_idx);
         //The offset is where this element will be placed in the exp. struct.
         /// FIXME: As the layout size is uint_64, here we assume
         /// offset with uint_32 (Size_t) is large enough and will not cause overflow
-        stinfo->addOffsetWithType(static_cast<u32_t>(eOffsetInBytes), et);
+        stinfo->addFldWithType(nf, static_cast<u32_t>(eOffsetInBytes), et);
 
-        StInfo* fieldStinfo = getStructInfo(et);
-        u32_t nfE = fieldStinfo->getFlattenFieldInfoVec().size();
-        //Copy ST's info, whose element 0 is the size of ST itself.
-        for (u32_t j = 0; j < nfE; j++) {
-            u32_t oft = eOffsetInBytes + fieldStinfo->getFlattenFieldInfoVec()[j].getFlattenOffset();
-            const Type* elemTy = fieldStinfo->getFlattenFieldInfoVec()[j].getFlattenElemTy();
-            FieldInfo::ElemNumStridePairVec pair = fieldStinfo->getFlattenFieldInfoVec()[j].getElemNumStridePairVect();
-            pair.push_back(std::make_pair(1, 0));
-            FieldInfo newField(oft, elemTy, pair);
-            stinfo->getFlattenFieldInfoVec().push_back(newField);
+        if (SVFUtil::isa<StructType>(et) || SVFUtil::isa<ArrayType>(et)) {
+            StInfo * subStinfo = getStructInfo(et);
+            u32_t nfE = subStinfo->getFlattenFieldInfoVec().size();
+            //Copy ST's info, whose element 0 is the size of ST itself.
+            for (u32_t j = 0; j < nfE; j++) {
+				u32_t fldIdx = nf + subStinfo->getFlattenFieldInfoVec()[j].getFlattenFldIdx();
+				u32_t off = eOffsetInBytes + subStinfo->getFlattenFieldInfoVec()[j].getFlattenByteOffset();
+                const Type* elemTy = subStinfo->getFlattenFieldInfoVec()[j].getFlattenElemTy();
+                FieldInfo::ElemNumStridePairVec pair = subStinfo->getFlattenFieldInfoVec()[j].getElemNumStridePairVect();
+                pair.push_back(std::make_pair(1, 0));
+                FieldInfo field(fldIdx, off,elemTy,pair);
+                stinfo->getFlattenFieldInfoVec().push_back(field);
+            }
+            nf += nfE;
+        } else { //simple type
+            FieldInfo::ElemNumStridePairVec pair;
+            pair.push_back(std::make_pair(1,0));
+            FieldInfo field(nf, eOffsetInBytes, et,pair);
+            stinfo->getFlattenFieldInfoVec().push_back(field);
+            ++nf;
         }
     }
 
-//	verifyStructSize(stinfo,stTySL->getSizeInBytes());
-
     //Record the size of the complete struct and update max_struct.
-    if (stTySL->getSizeInBytes() > maxStSize) {
-        maxStruct = ty;
-        maxStSize = stTySL->getSizeInBytes();
+    if (nf > maxStSize) {
+        maxStruct = sty;
+        maxStSize = nf;
     }
-    */
+    
 }
 
 

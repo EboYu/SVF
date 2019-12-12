@@ -19,10 +19,10 @@ using namespace SVFUtil;
 
 char DDAPass::ID = 0;
 
-static llvm::cl::opt<unsigned> maxPathLen("maxpath",  llvm::cl::init(100000),
+static llvm::cl::opt<unsigned> maxPathLen("maxpath",  llvm::cl::init(200000),
                                     llvm::cl::desc("Maximum path limit for DDA"));
 
-static llvm::cl::opt<unsigned> maxContextLen("maxcxt",  llvm::cl::init(3),
+static llvm::cl::opt<unsigned> maxContextLen("maxcxt",  llvm::cl::init(200000),
                                        llvm::cl::desc("Maximum context limit for DDA"));
 
 static llvm::cl::opt<string> userInputQuery("query",  llvm::cl::init("all"),
@@ -40,8 +40,8 @@ static llvm::cl::opt<bool> printCPts("cpts", llvm::cl::init(false),
 static llvm::cl::opt<bool> printQueryPts("print-query-pts", llvm::cl::init(false),
                                    llvm::cl::desc("Dump queries' conditional points-to set "));
 
-static llvm::cl::opt<bool> dumpNodeId("dumpmap", llvm::cl::init(false),
-                                   llvm::cl::desc("Dump the map between node id and pointer"));                                   
+static llvm::cl::opt<bool> dumpNodeId("dump-map", llvm::cl::init(false),
+                                   llvm::cl::desc("Dump the map between node id and pointer"));    
 
 static llvm::cl::opt<bool> WPANUM("wpanum", llvm::cl::init(false),
                             llvm::cl::desc("collect WPA FS number only "));

@@ -12,7 +12,7 @@
 using namespace std;
 using namespace SVFUtil;
 
-static llvm::cl::opt<unsigned long long> flowBudget("flowbg",  llvm::cl::init(10000),
+static llvm::cl::opt<unsigned long long> flowBudget("flowbg",  llvm::cl::init(300000),
         llvm::cl::desc("Maximum step budget of flow-sensitive traversing"));
 
 /*!

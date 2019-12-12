@@ -11,7 +11,7 @@
 
 using namespace SVFUtil;
 
-static llvm::cl::opt<unsigned long long> cxtBudget("cxtbg",  llvm::cl::init(10000),
+static llvm::cl::opt<unsigned long long> cxtBudget("cxtbg",  llvm::cl::init(200000),
         llvm::cl::desc("Maximum step budget of context-sensitive traversing"));
 /*!
  * Constructor

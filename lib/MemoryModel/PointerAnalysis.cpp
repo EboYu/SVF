@@ -54,6 +54,9 @@ static llvm::cl::opt<bool> FuncPointerPrint("print-fp", llvm::cl::init(false),
 static llvm::cl::opt<bool> PTSPrint("print-pts", llvm::cl::init(false),
                               llvm::cl::desc("Print points-to set of top-level pointers"));
 
+static llvm::cl::opt<bool> DumpTLPTS("dump-top-pts", llvm::cl::init(false),
+                              llvm::cl::desc("Dump top-level pointers"));
+
 static llvm::cl::opt<bool> PTSAllPrint("print-all-pts", llvm::cl::init(false),
                                  llvm::cl::desc("Print all points-to set of both top-level and address-taken variables"));
 
@@ -65,6 +68,9 @@ static llvm::cl::opt<unsigned> statBudget("statlimit",  llvm::cl::init(20),
 
 static llvm::cl::opt<bool> PAGDotGraph("dump-pag", llvm::cl::init(false),
                                  llvm::cl::desc("Dump dot graph of PAG"));
+
+ static llvm::cl::opt<bool> DumpPAGGraph("dump-txt-pag", llvm::cl::init(false),
+                                 llvm::cl::desc("Dump txt of PAG"));                               
 
 static llvm::cl::opt<bool> PAGPrint("print-pag", llvm::cl::init(false),
                               llvm::cl::desc("Print PAG to command line"));
@@ -239,6 +245,10 @@ void PointerAnalysis::finalize() {
         //dumpCPts();
     }
 
+    if(DumpTLPTS){
+        dumpTopLevelPts();
+    }
+
     if (TYPEPrint)
         dumpAllTypes();
 
@@ -247,6 +257,9 @@ void PointerAnalysis::finalize() {
 
     if (FuncPointerPrint)
         printIndCSTargets();
+
+    if(DumpPAGGraph)
+        dumpAllPAGs();
 
     getPTACallGraph()->verifyCallGraph();
 
@@ -275,6 +288,84 @@ void PointerAnalysis::validateTests() {
     validateExpectedFailureTests("EXPECTEDFAIL_NOALIAS");
 }
 
+void PointerAnalysis::dumpAllPAGs(){
+    std::ofstream fOut("PAGGraph.txt");
+    std::string str;
+    raw_string_ostream rawstr(str);
+    for(PAG::iterator it = pag->begin(), eit = pag->end(); it!=eit; it++) {
+        NodeID ptr = it->first;
+        const PAGNode* node = pag->getPAGNode(ptr);
+        
+        /// print the points-to set of node which has the maximum pts size.
+        if (!SVFUtil::isa<DummyObjPN>(node) && ! SVFUtil::isa<DummyValPN>(node)){
+            rawstr << "Ptr:" << node->getId() << " in ";
+            if(node->getFunction()!=NULL){
+                rawstr << node->getFunction()->getName()<<" \n";
+            }else{
+                rawstr << " Glob \n";
+            }
+            
+            rawstr << "Incoming:[";
+            if(node->hasIncomingEdges(PAGEdge::Addr))
+	        for (PAGEdge::PAGEdgeSetTy::iterator iter = node->getIncomingEdgesBegin(PAGEdge::Addr), eiter =
+			        node->getIncomingEdgesEnd(PAGEdge::Addr); iter != eiter; ++iter) {
+		            rawstr << (*iter)->getSrcID() << " ";
+	        }
+            rawstr << "][";
+
+            if(node->hasIncomingEdges(PAGEdge::Copy))
+            for (PAGEdge::PAGEdgeSetTy::iterator iter = node->getIncomingEdgesBegin(PAGEdge::Copy), eiter =
+			        node->getIncomingEdgesEnd(PAGEdge::Copy); iter != eiter; ++iter) {
+		            rawstr << (*iter)->getSrcID()  << " ";
+	        }
+            rawstr << "][";
+
+            if(node->hasIncomingEdges(PAGEdge::Call))
+            for (PAGEdge::PAGEdgeSetTy::iterator iter = node->getIncomingEdgesBegin(PAGEdge::Call), eiter =
+			        node->getIncomingEdgesEnd(PAGEdge::Call); iter != eiter; ++iter) {
+		            rawstr << (*iter)->getSrcID() << " ";
+	        }
+            rawstr << "][";
+
+            if(node->hasIncomingEdges(PAGEdge::Load))
+            for (PAGEdge::PAGEdgeSetTy::iterator iter = node->getIncomingEdgesBegin(PAGEdge::Load), eiter =
+			        node->getIncomingEdgesEnd(PAGEdge::Load); iter != eiter; ++iter) {
+		            rawstr << (*iter)->getSrcID() << " ";
+	        }
+            rawstr << "][";
+
+            if(node->hasIncomingEdges(PAGEdge::Store))
+            for (PAGEdge::PAGEdgeSetTy::iterator iter = node->getIncomingEdgesBegin(PAGEdge::Store), eiter =
+			        node->getIncomingEdgesEnd(PAGEdge::Store); iter != eiter; ++iter) {
+		            rawstr << (*iter)->getSrcID()  << " ";
+	        }
+            rawstr << "][";
+
+            if(node->hasIncomingEdges(PAGEdge::NormalGep))
+            for (PAGEdge::PAGEdgeSetTy::iterator iter = node->getIncomingEdgesBegin(PAGEdge::NormalGep), eiter =
+			        node->getIncomingEdgesEnd(PAGEdge::NormalGep); iter != eiter; ++iter) {
+		            rawstr << (*iter)->getSrcID() << ":"<<(SVFUtil::cast<NormalGepPE>(*iter))->getOffset()<<" ";
+	        }
+            rawstr << "][";
+
+            if(node->hasIncomingEdges(PAGEdge::VariantGep))
+            for (PAGEdge::PAGEdgeSetTy::iterator iter = node->getIncomingEdgesBegin(PAGEdge::VariantGep), eiter =
+			        node->getIncomingEdgesEnd(PAGEdge::VariantGep); iter != eiter; ++iter) {
+		            rawstr << (*iter)->getSrcID() << " ";
+	        }
+            rawstr << "][";
+
+            if(node->hasIncomingEdges(PAGEdge::Ret))
+            for (PAGEdge::PAGEdgeSetTy::iterator iter = node->getIncomingEdgesBegin(PAGEdge::Ret), eiter =
+			        node->getIncomingEdgesEnd(PAGEdge::Ret); iter != eiter; ++iter) {
+		            rawstr << (*iter)->getSrcID() << " ";
+	        }
+            rawstr << "]\n\n";
+        }
+    }
+    fOut << rawstr.str();
+    fOut.close();
+}
 
 void PointerAnalysis::dumpAllTypes()
 {
@@ -473,6 +564,21 @@ void BVDataPTAImpl::dumpTopLevelPtsTo() {
     }
 }
 
+void BVDataPTAImpl::dumpTopLevelPts() {
+    std::ofstream fOut("topLevelPointers.txt");
+    std::string str;
+    raw_string_ostream rawstr(str);
+    for (NodeSet::iterator nIter = this->getAllValidPtrs().begin();
+            nIter != this->getAllValidPtrs().end(); ++nIter) {
+        const PAGNode* node = getPAG()->getPAGNode(*nIter);
+        if (getPAG()->isValidTopLevelPtr(node)) {
+            rawstr << "Name:"<<node->getValue()->getName()<<" NodeID:" << node->getId() << " Source Loc:" <<getSourceLoc(node->getValue())<<"\n";
+        }
+    }
+    fOut << rawstr.str();
+    fOut.close();
+}
+
 /*!
  * Dump points-to of top-level pointers (ValPN)
  */
@@ -526,9 +632,9 @@ std::string PointerAnalysis::dumpTxtPointer(NodeID ptr, const PointsTo& pts) {
     const PAGNode* node = pag->getPAGNode(ptr);
     /// print the points-to set of node which has the maximum pts size.
     if (!SVFUtil::isa<DummyObjPN>(node) && ! SVFUtil::isa<DummyValPN>(node)){
-        rawstr << "##<" << node->getValue()->getName() << "> ";
-        rawstr << "Source Loc: " << getSourceLoc(node->getValue());
-        rawstr << "---> NodeID " << node->getId() << "\n";
+        rawstr << "Ptr:" << node->getId() << " --> ";
+        rawstr << "Valuename=" << node->getValue()->getName()<<"> ";
+        rawstr << "SourceLoc=" << getSourceLoc(node->getValue())<<"> ";
     }
 
     return rawstr.str();
@@ -545,16 +651,16 @@ std::string PointerAnalysis::dumpTxtPts(NodeID ptr, const PointsTo& pts) {
         rawstr << "##<" << node->getValue()->getName() << "> ";
         rawstr << "Source Loc: " << getSourceLoc(node->getValue());
     }
-    rawstr << "\nPtr " << node->getId() << " ";
+    rawstr << "\nPtr:" << node->getId() << " ";
 
     if (pts.empty()) {
-        rawstr << "\t\tPointsTo: {empty}\n\n";
+        rawstr << "==PointsTo: {empty}\n";
     } else {
-        rawstr << "\t\tPointsTo: { ";
+        rawstr << "==PointsTo: { ";
         for (PointsTo::iterator it = pts.begin(), eit = pts.end(); it != eit;
                 ++it)
             rawstr << *it << " ";
-        rawstr << "}\n\n";
+        rawstr << "}\n";
     }
 
     rawstr << "";

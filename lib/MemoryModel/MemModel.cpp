@@ -44,7 +44,7 @@ u32_t SymbolTableInfo::maxFieldLimit = 0;
 SymID SymbolTableInfo::totalSymNum = 0;
 
 static llvm::cl::opt<unsigned> maxFieldNumLimit("fieldlimit",  llvm::cl::init(10000),
-        llvm::cl::desc("Maximum field number for field sensitive analysis"));
+        llvm::cl::desc("Maximum field number for field sensitive analysis, default 10000"));
 
 static llvm::cl::opt<bool> LocMemModel("locMM", llvm::cl::init(false),
                                  llvm::cl::desc("Bytes/bits modeling of memory locations"));

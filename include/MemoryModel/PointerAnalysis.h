@@ -370,6 +370,8 @@ public:
     virtual void dumpTopLevelPtsTo() {}
     virtual void dumpAllPts() {}
     virtual void dumpCPts() {}
+    virtual void dumpTopLevelPts() {}
+    void dumpAllPAGs();
     virtual void dumpPts(NodeID ptr, const PointsTo& pts);
     std::string dumpTxtPts(NodeID ptr, const PointsTo& pts);
     std::string dumpTxtPointer(NodeID ptr, const PointsTo& pts);
@@ -511,7 +513,7 @@ public:
     }
 
     virtual void dumpTopLevelPtsTo();
-
+    virtual void dumpTopLevelPts();
     virtual void dumpAllPts();
     //@}
 };
