@@ -10,6 +10,8 @@
 #ifndef DDAPASS_H_
 #define DDAPASS_H_
 
+#include <llvm/Support/CBindingWrapping.h>
+#include "SUPA-C/Types.h"
 #include "MemoryModel/PointerAnalysis.h"
 #include "DDA/DDAClient.h"
 #include "Util/SCC.h"
@@ -87,6 +89,6 @@ public:
     DDAClient* _client;		///<  DDA client used
 
 };
-
+DEFINE_SIMPLE_CONVERSION_FUNCTIONS(DDAPass, SUPADDAPass)
 
 #endif /* DDAPASS_H_ */

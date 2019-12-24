@@ -20,6 +20,7 @@
 #include <llvm/IR/LLVMContext.h>		// for llvm LLVMContext
 #include <llvm/Support/SourceMgr.h> // for SMDiagnostic
 #include <llvm/Bitcode/BitcodeWriterPass.h>		// for createBitcodeWriterPass
+#include "SUPA-C/Types.h"
 
 using namespace llvm;
 
@@ -51,9 +52,8 @@ static cl::opt<bool> ENABLECONTEXT("cdaa", cl::init(false),
 static cl::opt<bool> ENABLEFLOW("ldaa", cl::init(false),
                                 cl::desc("enable flow-sensitivity for demand-driven analysis"));
 
-int main(int argc, char ** argv) {
-
-    int arg_num = 0;
+void performSUPA(int argc, char ** argv){
+     int arg_num = 0;
     char **arg_value = new char*[argc];
     std::vector<std::string> moduleNameVec;
     SVFUtil::processArguments(argc, argv, arg_num, arg_value, moduleNameVec);
@@ -66,6 +66,11 @@ int main(int argc, char ** argv) {
     dda->runOnModule(svfModule);
 
     svfModule.dumpModulesToFile(".dvf");
+}
+
+int main(int argc, char ** argv) {
+
+    performSUPA(argc,argv);
 
     return 0;
 

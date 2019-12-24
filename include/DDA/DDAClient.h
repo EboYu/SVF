@@ -18,6 +18,7 @@
 #include "MSSA/SVFG.h"
 #include "Util/BasicTypes.h"
 #include "Util/CPPUtil.h"
+#include "llvm/Support/CBindingWrapping.h"
 
 
 /**

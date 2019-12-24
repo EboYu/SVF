@@ -54,14 +54,6 @@ bool isConstructor(const Function *F);
 bool isDestructor(const Function *F);
 
 /*
- * VtableA = {&A::foo}
- * A::A(this){
- *   *this = &VtableA;
- * }
- *
- *
- * A* p = new A;
- * cs: p->foo(...)
  * ==>
  *  vtptr = *p;
  *  vfn = &vtptr[i]

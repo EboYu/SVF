@@ -10,6 +10,7 @@
 #include "DDA/FlowDDA.h"
 #include "DDA/ContextDDA.h"
 #include "DDA/DDAClient.h"
+#include "SUPA-C/Types.h"
 #include <sstream>
 #include <fstream>
 #include <iostream>
@@ -331,4 +332,20 @@ void DDAPass::dumpNodeID(){
         fOut << _pta->dumpTxtPointer(*nIter,pts) << std::endl;
     }
     fOut.close();
+}
+
+SUPADDAPass DDAPassCreate(){
+    return wrap(new DDAPass());
+}
+
+void DDAPassDispose(SUPADDAPass M){
+    delete unwrap(M);
+}
+
+void DDAPassDumpNodeID(SUPADDAPass M){
+    unwrap(M)->dumpNodeID();
+}
+
+void DDAPassPrintQueryPTS(SUPADDAPass M){
+    unwrap(M)->printQueryPTS();
 }

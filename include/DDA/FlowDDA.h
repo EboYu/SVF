@@ -23,8 +23,8 @@ class FlowDDA : public BVDataPTAImpl, public DDAVFSolver<NodeID,PointsTo,LocDPIt
 
 public:
     typedef BVDataPTAImpl::CallSiteSet CallSiteSet;
-    typedef BVDataPTAImpl::CallEdgeMap	CallEdgeMap;
-    typedef BVDataPTAImpl::FunctionSet	FunctionSet;
+    typedef BVDataPTAImpl::CallEdgeMap CallEdgeMap;
+    typedef BVDataPTAImpl::FunctionSet FunctionSet;
     /// Constructor
     FlowDDA(SVFModule m, DDAClient* client): BVDataPTAImpl(PointerAnalysis::FlowS_DDA),
         DDAVFSolver<NodeID,PointsTo,LocDPItem>(),
