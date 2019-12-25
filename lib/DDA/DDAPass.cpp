@@ -339,18 +339,18 @@ void DDAPass::dumpNodeID(std::string filePath){
     fOut.close();
 }
 
-SUPADDAPass DDAPassCreate(){
+SVFDDAPass DDAPassCreate(){
     return wrap(new DDAPass());
 }
 
-void DDAPassDispose(SUPADDAPass M){
+void DDAPassDispose(SVFDDAPass M){
     delete unwrap(M);
 }
 
-void DDAPassDumpNodeID(SUPADDAPass M, std::string filePath){
+void DDAPassDumpNodeID(SVFDDAPass M, std::string filePath){
     unwrap(M)->dumpNodeID(filePath);
 }
 
-void DDAPassPrintQueryPTS(SUPADDAPass M, std::string filePath){
+void DDAPassPrintQueryPTS(SVFDDAPass M, std::string filePath){
     unwrap(M)->printQueryPTS(filePath);
 }

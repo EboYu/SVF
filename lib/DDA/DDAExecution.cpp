@@ -52,7 +52,7 @@ bool starting() {
     return true;
 }
 
-void performSUPA(int argc, char ** argv){
+void performSVF(int argc, char ** argv){
      int arg_num = 0;
      char **arg_value = new char*[argc];
     std::vector<std::string> moduleNameVec;

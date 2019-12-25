@@ -89,6 +89,6 @@ public:
     DDAClient* _client;		///<  DDA client used
 
 };
-DEFINE_SIMPLE_CONVERSION_FUNCTIONS(DDAPass, SUPADDAPass)
+DEFINE_SIMPLE_CONVERSION_FUNCTIONS(DDAPass, SVFDDAPass)
 
 #endif /* DDAPASS_H_ */
