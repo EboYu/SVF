@@ -366,3 +366,16 @@ void LLVMModuleSet::dumpModulesToFile(const std::string suffix) {
         OS.flush();
     }
 }
+
+std::string LLVMModuleSet::generateFilePath(const std::string suffix){
+    Module *mod = getModule(0);
+    std::string moduleName = mod->getName().str();
+    std::string OutputFilename;
+    std::size_t pos = moduleName.rfind('/');
+    if (pos != std::string::npos)
+        OutputFilename = moduleName.substr(0, pos+1) + suffix;
+    else
+        OutputFilename = suffix;
+    return OutputFilename;
+}
+ 

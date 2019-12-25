@@ -10,7 +10,7 @@
 #include "DDA/FlowDDA.h"
 #include "DDA/ContextDDA.h"
 #include "DDA/DDAClient.h"
-#include "SUPA-C/Types.h"
+#include "SVF-C/Types.h"
 #include <sstream>
 #include <fstream>
 #include <iostream>
@@ -71,7 +71,6 @@ bool DDAPass::runOnModule(SVFModule module)
 {
     /// initialization for llvm alias analyzer
     //InitializeAliasAnalysis(this, SymbolTableInfo::getDataLayout(&module));
-
     selectClient(module);
 
     for (u32_t i = PointerAnalysis::FlowS_DDA;
@@ -142,16 +141,22 @@ void DDAPass::runPointerAnalysis(SVFModule module, u32_t kind)
         answerQueries(_pta);
         ///finalize
         _pta->finalize();
+        
         if(printCPts)
             _pta->dumpCPts();
 
         if (_pta->printStat())
             _client->performStat(_pta);
 
-        if (printQueryPts)
-            printQueryPTS();
-        if (dumpNodeId)
-            dumpNodeID();
+        if (printQueryPts){
+            std::string filePath = module.generateFilePath("result.txt");
+            printQueryPTS(filePath);
+        }
+            
+        if (dumpNodeId){
+            std::string filePath = module.generateFilePath("pointermap.txt");
+            dumpNodeID(filePath);
+        }
     }
 }
 
@@ -310,8 +315,8 @@ AliasResult DDAPass::alias(const Value* V1, const Value* V2) {
 /*!
  * Print queries' pts
  */
-void DDAPass::printQueryPTS() {
-    std::ofstream fOut("result.txt");
+void DDAPass::printQueryPTS(std::string filePath) {
+    std::ofstream fOut(filePath);
     const NodeSet& candidates = _client->getCandidateQueries();
     for (NodeSet::iterator it = candidates.begin(), eit = candidates.end(); it != eit; ++it) {
         const PointsTo& pts = _pta->getPts(*it);
@@ -321,8 +326,8 @@ void DDAPass::printQueryPTS() {
 }
 
 
-void DDAPass::dumpNodeID(){
-    std::ofstream fOut("pointermap.txt");
+void DDAPass::dumpNodeID(std::string filePath){
+    std::ofstream fOut(filePath);
     std::string str="Pointer and Node ID map \n";
     raw_string_ostream rawstr(str);
     fOut << rawstr.str();
@@ -342,10 +347,10 @@ void DDAPassDispose(SUPADDAPass M){
     delete unwrap(M);
 }
 
-void DDAPassDumpNodeID(SUPADDAPass M){
-    unwrap(M)->dumpNodeID();
+void DDAPassDumpNodeID(SUPADDAPass M, std::string filePath){
+    unwrap(M)->dumpNodeID(filePath);
 }
 
-void DDAPassPrintQueryPTS(SUPADDAPass M){
-    unwrap(M)->printQueryPTS();
+void DDAPassPrintQueryPTS(SUPADDAPass M, std::string filePath){
+    unwrap(M)->printQueryPTS(filePath);
 }

@@ -2,7 +2,7 @@ add_subdirectory(CUDD)
 
 # Due to a mutual dependencies, all the sub projects of the SVG are merged here
 # Otherwise it is impossible to load the dependencies in opt
-# NOTE: if the SVF should be linked into opt, we should probably use the individual sub projects here, rather than the combined project 
+# NOTE: if the SVF should be linked into opt, we should probably use the individual sub projects here, rather than the combined project
 set(SOURCES
     Util/SVFUtil.cpp
     Util/CPPUtil.cpp
@@ -64,23 +64,22 @@ set(SOURCES
     DDA/DDAPass.cpp
     DDA/DDAStat.cpp
     DDA/FlowDDA.cpp
+    DDA/DDAExecution.cpp
     )
 
-add_llvm_Library(Svf SHARED ${SOURCES})
-add_llvm_Library(LLVMSvf SHARED ${SOURCES})
+add_llvm_Library(svf SHARED ${SOURCES})
+add_llvm_Library(LLVMsvf SHARED ${SOURCES})
 
 link_directories( ${CMAKE_BINARY_DIR}/lib/Cudd )
 llvm_map_components_to_libnames(llvm_libs bitwriter core ipo irreader instcombine instrumentation target linker analysis scalaropts support )
-target_link_libraries(LLVMSvf ${llvm_libs})
+target_link_libraries(LLVMsvf ${llvm_libs})
 if ( CMAKE_SYSTEM_NAME MATCHES "Darwin")
-    target_link_libraries(Svf LLVMCudd ${llvm_libs})
+    target_link_libraries(svf LLVMCudd ${llvm_libs})
 else()
-    target_link_libraries(Svf ${llvm_libs})
+    target_link_libraries(svf ${llvm_libs})
 endif()
 
-# target_link_libraries(Svf /home/yinbo/disk/workspace/SUPA-J/swig/SUPA_wrap.o)
-
 if(DEFINED IN_SOURCE_BUILD)
-    add_dependencies(Svf intrinsics_gen)
-    add_dependencies(LLVMSvf intrinsics_gen)
+    add_dependencies(svf intrinsics_gen)
+    add_dependencies(LLVMsvf intrinsics_gen)
 endif()

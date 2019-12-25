@@ -92,6 +92,8 @@ public:
     // Dump modules to files
     void dumpModulesToFile(const std::string suffix);
 
+    std::string generateFilePath(const std::string suffix);
+
     /// Fun decl --> def
     bool hasDefinition(const Function *fun) const {
         assert(fun->isDeclaration() && "not a function declaration?");
@@ -316,6 +318,10 @@ public:
 
     Module *getMainLLVMModule() const {
         return llvmModuleSet->getModule(0);
+    }
+
+    std::string generateFilePath(const std::string suffix) const {
+       return llvmModuleSet->generateFilePath(suffix);
     }
 
 	const std::string& getModuleIdentifier() const {

@@ -7,7 +7,7 @@ if(NOT COMMAND add_llvm_library)
     if (DEFINED ENV{LLVM_DIR})
         # We need to match the build environment for LLVM:
         # In particular, we need C++11 and the -fno-rtti flag
-        set(CMAKE_CXX_STANDARD 11)
+        #set(CMAKE_CXX_STANDARD 11)
 	if(CMAKE_BUILD_TYPE MATCHES "Debug")
 		set(CMAKE_CXX_FLAGS "-std=gnu++11 -O0 -fno-rtti")
 	else()
@@ -15,7 +15,7 @@ if(NOT COMMAND add_llvm_library)
 	endif()
 
 	find_package(LLVM REQUIRED CONFIG)
-        
+
         list(APPEND CMAKE_MODULE_PATH "${LLVM_CMAKE_DIR}")
         include(AddLLVM)
 
@@ -31,7 +31,6 @@ Please set this to environment variable to point to the LLVM build directory\
 else()
         set(IN_SOURCE_BUILD 1)
 endif()
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include
                     ${CMAKE_CURRENT_BINARY_DIR}/include)
 
@@ -41,7 +40,7 @@ add_subdirectory(tools)
 INSTALL(
     DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ ${CMAKE_CURRENT_BINARY_DIR}/include/
     COMPONENT devel
-    DESTINATION include/svf
+    DESTINATION ${CMAKE_INSTALL_PREFIX}/include
     FILES_MATCHING
     PATTERN "**/*.h"
     )

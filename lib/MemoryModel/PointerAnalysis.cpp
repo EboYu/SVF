@@ -289,7 +289,8 @@ void PointerAnalysis::validateTests() {
 }
 
 void PointerAnalysis::dumpAllPAGs(){
-    std::ofstream fOut("PAGGraph.txt");
+    std::string filepath = svfMod.generateFilePath("PAGGraph.txt");
+    std::ofstream fOut(filepath);
     std::string str;
     raw_string_ostream rawstr(str);
     for(PAG::iterator it = pag->begin(), eit = pag->end(); it!=eit; it++) {
@@ -565,7 +566,8 @@ void BVDataPTAImpl::dumpTopLevelPtsTo() {
 }
 
 void BVDataPTAImpl::dumpTopLevelPts() {
-    std::ofstream fOut("topLevelPointers.txt");
+    std::string filepath = svfMod.generateFilePath("topLevelPointers.txt");
+    std::ofstream fOut(filepath);
     std::string str;
     raw_string_ostream rawstr(str);
     for (NodeSet::iterator nIter = this->getAllValidPtrs().begin();

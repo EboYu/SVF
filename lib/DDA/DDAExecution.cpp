@@ -1,11 +1,3 @@
-/*
- // On Demand Value Flow Analysis
- //
- // Author: Yulei Sui,
- */
-
-//#include "AliasUtil/AliasAnalysisCounter.h"
-//#include "MemoryModel/ComTypeModel.h"
 #include "DDA/DDAPass.h"
 
 #include <llvm-c/Core.h> // for LLVMGetGlobalContext()
@@ -20,6 +12,11 @@
 #include <llvm/IR/LLVMContext.h>		// for llvm LLVMContext
 #include <llvm/Support/SourceMgr.h> // for SMDiagnostic
 #include <llvm/Bitcode/BitcodeWriterPass.h>		// for createBitcodeWriterPass
+#include "SVF-C/Types.h"
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
 using namespace llvm;
 
@@ -51,10 +48,13 @@ static cl::opt<bool> ENABLECONTEXT("cdaa", cl::init(false),
 static cl::opt<bool> ENABLEFLOW("ldaa", cl::init(false),
                                 cl::desc("enable flow-sensitivity for demand-driven analysis"));
 
-int main(int argc, char ** argv) {
+bool starting() {
+    return true;
+}
 
-    int arg_num = 0;
-    char **arg_value = new char*[argc];
+void performSUPA(int argc, char ** argv){
+     int arg_num = 0;
+     char **arg_value = new char*[argc];
     std::vector<std::string> moduleNameVec;
     SVFUtil::processArguments(argc, argv, arg_num, arg_value, moduleNameVec);
     cl::ParseCommandLineOptions(arg_num, arg_value,
@@ -64,9 +64,8 @@ int main(int argc, char ** argv) {
 
     DDAPass *dda = new DDAPass();
     dda->runOnModule(svfModule);
+    std::string file(argv[argc-1]);
+    outs()<<"Finish pass the "<<file<<" \n";
 
     svfModule.dumpModulesToFile(".dvf");
-    return 0;
-
 }
-
