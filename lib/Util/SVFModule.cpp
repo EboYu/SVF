@@ -379,3 +379,16 @@ std::string LLVMModuleSet::generateFilePath(const std::string suffix){
     return OutputFilename;
 }
  
+
+SVFSVFModule SVFModuleCreate(){
+    return wrap(new SVFModule());
+}
+
+SVFSVFModule SVFModuleCreate(const std::vector<std::string> &moduleNameVec){
+    return wrap(new SVFModule(moduleNameVec));
+}
+
+void SVFSVFModuleDispose(SVFSVFModule M){
+    delete unwrap(M);
+}
+

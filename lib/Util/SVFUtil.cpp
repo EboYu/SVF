@@ -30,7 +30,7 @@
 #include "Util/SVFUtil.h"
 #include "Util/Conditions.h"
 #include <sys/resource.h>		/// increase stack size
-
+#include "SVF-C/Utils.h"
 
 
 /// Color for output format
@@ -588,4 +588,8 @@ void SVFUtil::processArguments(int argc, char **argv, int &arg_num, char **arg_v
             arg_num++;
         }
     }
+}
+
+void SVFProcessArguments(int argc, char **argv, int &arg_num, char **arg_value,std::vector<std::string> &moduleNameVec){
+    SVFUtil::processArguments(argc,argv,arg_num,arg_value, moduleNameVec);
 }

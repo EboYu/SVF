@@ -9,6 +9,7 @@ extern "C" {
     typedef int SVFBool;
 
     typedef struct OpaqueDDAPass *SVFDDAPass; 
+    typedef struct OpaqueSVFModule *SVFSVFModule;
     bool starting();
     void performSVF(int argc, char ** argv);
     

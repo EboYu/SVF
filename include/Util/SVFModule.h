@@ -31,6 +31,7 @@
 #define SVFMODULE_H_
 
 #include "Util/BasicTypes.h"
+#include "SVF-C/Types.h"
 
 class LLVMModuleSet {
 public:
@@ -378,5 +379,5 @@ public:
     ///@}
 };
 
-
+DEFINE_SIMPLE_CONVERSION_FUNCTIONS(SVFModule, SVFSVFModule)
 #endif /* SVFMODULE_H_ */
