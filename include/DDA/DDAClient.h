@@ -63,6 +63,12 @@ public:
         userInput.insert(ptr);
         solveAll = false;
     }
+
+    void freshQuery(){
+        solveAll = false;
+        userInput.clear();
+        candidateQueries.clear();
+    }
     /// Get LLVM module
     inline SVFModule getModule() const {
         return module;

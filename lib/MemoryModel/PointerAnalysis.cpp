@@ -541,6 +541,45 @@ bool BVDataPTAImpl::readFromFile(const string& filename) {
     return true;
 }
 
+
+
+const CPAGNodeSet& PointerAnalysis::extractAllValidPtrs(){
+    std::map<int, CPAGNode_t>::iterator itera = cPagNodeSet.begin();
+    for(PAG::iterator it = pag->begin(), eit = pag->end(); it!=eit; it++) {
+        const PAGNode* node = pag->getPAGNode(it->first);
+    
+        if (!SVFUtil::isa<DummyObjPN>(node) && ! SVFUtil::isa<DummyValPN>(node)){
+            CPAGNode_t cPAGNode={};
+            cPAGNode.nodeID = node->getId();
+            cPAGNode.isTLPointer = pag->isValidTopLevelPtr(node);
+            cPAGNode.pointerName = node->getValue()->getName().data();
+            cPAGNode.irID=-1;
+            if(node->getFunction()!=NULL){
+                cPAGNode.functionName =  node->getFunction()->getName().data();
+            }else{
+                cPAGNode.functionName = "Glob";
+            }
+            cPAGNode.location = "";
+            if (const Instruction *inst = SVFUtil::dyn_cast<Instruction>(node->getValue())){
+                cPAGNode.variableType =0;
+                std::string str;
+                raw_string_ostream rawstr(str);
+                rawstr<< *inst;
+                cPAGNode.location = rawstr.str().c_str();
+            }else if (const Argument* argument = SVFUtil::dyn_cast<Argument>(node->getValue())) {
+                cPAGNode.variableType =1;
+                cPAGNode.irID=argument->getArgNo();
+            }else if (const GlobalVariable* gvar = SVFUtil::dyn_cast<GlobalVariable>(node->getValue())) {
+                cPAGNode.variableType =2;
+            }else if (const Function* func = SVFUtil::dyn_cast<Function>(node->getValue())) {
+                cPAGNode.variableType =3;
+            }else 
+                cPAGNode.variableType =-1;
+            cPagNodeSet.insert (itera, std::pair<int, CPAGNode_t>(node->getId(),cPAGNode));
+        }
+    }
+    return cPagNodeSet;
+}
 /*!
  * Dump points-to of each pag node
  */
@@ -580,6 +619,8 @@ void BVDataPTAImpl::dumpTopLevelPts() {
     fOut << rawstr.str();
     fOut.close();
 }
+
+
 
 /*!
  * Dump points-to of top-level pointers (ValPN)
@@ -632,7 +673,6 @@ std::string PointerAnalysis::dumpTxtPointer(NodeID ptr, const PointsTo& pts) {
     std::string str;
     raw_string_ostream rawstr(str);
     const PAGNode* node = pag->getPAGNode(ptr);
-    /// print the points-to set of node which has the maximum pts size.
     if (!SVFUtil::isa<DummyObjPN>(node) && ! SVFUtil::isa<DummyValPN>(node)){
         rawstr << "Ptr:" << node->getId() << " --> ";
         rawstr << "Valuename=" << node->getValue()->getName()<<"> ";

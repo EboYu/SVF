@@ -365,6 +365,55 @@ void DDAPassRunOnModule(SVFDDAPass P,SVFSVFModule M){
     unwrap(P)->runOnModuleCXT(*unwrap(M));
 }
 
+void DDAPassInitilize(SVFDDAPass P,SVFSVFModule M){
+    DDAPass *dda = unwrap(P);
+    SVFModule *module = unwrap(M);
+    dda->_client = new DDAClient(*module);
+    dda->_client->initialise(*module);
+    //set max path limit
+    VFPathCond::setMaxPathLen(maxPathLen);
+    //set max context limit
+    ContextCond::setMaxCxtLen(maxContextLen);
+
+    /// Initialize pointer analysis.
+    dda->_pta = new ContextDDA(*module, dda->_client);
+    dda->_pta->initialize(*module);
+}
+
+const std::map<int, CPAGNode_t>& DDAPassExtractAllValidPtrs(SVFDDAPass M){
+    return unwrap(M)->_pta->extractAllValidPtrs();
+}
+
+void DDAPassPointsToSet(SVFDDAPass M,std::map<int, set<int>> &nodePTSSet){
+     DDAPass *dda = unwrap(M);
+     std::map<int, set<int>>::iterator itera = nodePTSSet.begin();
+     for(PAG::iterator it = dda->_pta->getPAG()->begin(), eit = dda->_pta->getPAG()->end(); it!=eit; it++) {
+        NodeID ptr = it->first;
+        PointsTo pts = dda->_pta->getPts(it->first);
+        if (!pts.empty()) {
+            set<int> NodeSet;
+            for (PointsTo::iterator pit = pts.begin(), peit = pts.end(); pit != peit; ++pit)
+                NodeSet.insert(*pit);
+            nodePTSSet.insert(itera, std::pair<int, set<int>>(ptr,NodeSet));
+        }
+     }
+}
+
+// using pointer ids as a query
+void DDAPassAnswerQuery(SVFDDAPass M, const char* query){
+    DDAPass *dda = unwrap(M);
+    dda->_client->freshQuery();
+    //setup the client for query
+    std::string inputQuery = query;
+    u32_t buf; // Have a buffer
+    stringstream ss(inputQuery); // Insert the user input string into a stream
+    while (ss >> buf)
+        dda->_client->setQuery(buf);
+    
+    dda->answerQueries(dda->_pta);
+                 
+}
+
 void DDAPassDumpNodeID(SVFDDAPass M, const char* filePath){
     std::string path = filePath;
     unwrap(M)->dumpNodeID(path);

@@ -38,6 +38,7 @@
 #include "Util/PathCondAllocator.h"
 #include "MemoryModel/PointsToDFDS.h"
 #include "WPA/CSC.h"
+#include "SVF-C/Types.h"
 
 class CHGraph;
 class CHNode;
@@ -46,6 +47,7 @@ class TypeSystem;
 class SVFModule;
 class ICFG;
 class PTAStat;
+typedef std::map<int, CPAGNode_t> CPAGNodeSet;
 /*
  * Pointer Analysis Base Class
  */
@@ -93,6 +95,7 @@ public:
     typedef SCCDetection<PTACallGraph*> CallGraphSCC;
     typedef std::set<const GlobalValue*> VTableSet;
     typedef std::set<const Function*> VFunSet;
+    
     //@}
 
 private:
@@ -127,6 +130,8 @@ protected:
     static CHGraph *chgraph;
     /// TypeSystem
     TypeSystem *typeSystem;
+
+    CPAGNodeSet cPagNodeSet;
 
 public:
     /// Return number of resolved indirect call edges
@@ -172,6 +177,8 @@ public:
     inline NodeSet& getAllValidPtrs() {
         return pag->getAllValidPtrs();
     }
+
+    virtual const CPAGNodeSet& extractAllValidPtrs();
 
     /// Destructor
     virtual ~PointerAnalysis();

@@ -4,6 +4,8 @@
 #include "SVF-C/Types.h"
 #include <vector>
 #include <string>
+#include <map>
+#include <set>
 
 using namespace std;
 
@@ -16,6 +18,10 @@ extern "C" {
     void DDAPassRunOnModule(SVFDDAPass P,SVFSVFModule M);
     void DDAPassDumpNodeID(SVFDDAPass M, const char* filePath);
     void DDAPassPrintQueryPTS(SVFDDAPass M, const char* filePath);
+    void DDAPassInitilize(SVFDDAPass P,SVFSVFModule M);
+    void DDAPassAnswerQuery(SVFDDAPass M, const char* query);
+    const std::map<int, CPAGNode_t>& DDAPassExtractAllValidPtrs(SVFDDAPass M);
+    void DDAPassPointsToSet(SVFDDAPass M,std::map<int, set<int>> &nodePTSSet);
 
     //SVFSVFModule SVFModuleCreate();
     SVFSVFModule SVFModuleCreate(const std::vector<std::string> &moduleNameVec);
