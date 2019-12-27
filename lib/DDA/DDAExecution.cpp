@@ -53,8 +53,8 @@ bool starting() {
 }
 
 void performSVF(int argc, char ** argv){
-     int arg_num = 0;
-     char **arg_value = new char*[argc];
+    int arg_num = 0;
+    char **arg_value = new char*[argc];
     std::vector<std::string> moduleNameVec;
     SVFUtil::processArguments(argc, argv, arg_num, arg_value, moduleNameVec);
     cl::ParseCommandLineOptions(arg_num, arg_value,

@@ -590,6 +590,26 @@ void SVFUtil::processArguments(int argc, char **argv, int &arg_num, char **arg_v
     }
 }
 
-void SVFProcessArguments(int argc, char **argv, int &arg_num, char **arg_value,std::vector<std::string> &moduleNameVec){
-    SVFUtil::processArguments(argc,argv,arg_num,arg_value, moduleNameVec);
+int SVFProcessArguments(int argc, char **argv, char **arg_value, std::vector<std::string>* moduleNameVec){
+    //SVFUtil::processArguments(argc,argv,arg_num,arg_value, moduleNameVec);
+    bool first_ir_file = true;
+    int arg_num =0;
+    for (s32_t i = 0; i < argc; ++i) {
+        std::string argument(argv[i]);
+        size_t arg_len = argument.size();
+        if (SVFUtil::isIRFile(argument)) {
+            if (find(moduleNameVec->begin(), moduleNameVec->end(), argument)
+                    == moduleNameVec->end())
+                moduleNameVec->push_back(argument);
+            if (first_ir_file) {
+                arg_value[arg_num] = argv[i];
+                arg_num++;
+                first_ir_file = false;
+            }
+        } else {
+            arg_value[arg_num] = argv[i];
+            arg_num++;
+        }
+    }
+    return arg_num;
 }

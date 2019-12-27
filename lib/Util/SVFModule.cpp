@@ -30,6 +30,7 @@
 #include <queue>
 #include "Util/SVFModule.h"
 #include "Util/SVFUtil.h"
+#include "SVF-C/Utils.h"
 
 using namespace std;
 
@@ -359,7 +360,6 @@ void LLVMModuleSet::dumpModulesToFile(const std::string suffix) {
             OutputFilename = moduleName.substr(0, pos) + suffix;
         else
             OutputFilename = moduleName + suffix;
-
         std::error_code EC;
         raw_fd_ostream OS(OutputFilename.c_str(), EC, llvm::sys::fs::F_None);
         WriteBitcodeToFile(*mod, OS);
@@ -377,8 +377,7 @@ std::string LLVMModuleSet::generateFilePath(const std::string suffix){
     else
         OutputFilename = suffix;
     return OutputFilename;
-}
- 
+} 
 
 SVFSVFModule SVFModuleCreate(){
     return wrap(new SVFModule());
@@ -392,3 +391,7 @@ void SVFSVFModuleDispose(SVFSVFModule M){
     delete unwrap(M);
 }
 
+void SVFDumpModulesToFile(SVFSVFModule M, const char* suffix){
+    std::string s = suffix;
+    unwrap(M)->dumpModulesToFile(s);
+}

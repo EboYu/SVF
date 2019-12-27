@@ -11,6 +11,7 @@
 #include "DDA/ContextDDA.h"
 #include "DDA/DDAClient.h"
 #include "SVF-C/Types.h"
+#include "SVF-C/Utils.h"
 #include <sstream>
 #include <fstream>
 #include <iostream>
@@ -66,19 +67,31 @@ DDAPass::~DDAPass() {
         delete _client;
 }
 
+bool DDAPass::runOnModuleCXT(SVFModule module)
+{
+    /// initialization for llvm alias analyzer
+    //InitializeAliasAnalysis(this, SymbolTableInfo::getDataLayout(&module));
+    selectClient(module);
+    
+    runPointerAnalysis(module, 20);
+    
+    return false;
+}
 
 bool DDAPass::runOnModule(SVFModule module)
 {
     /// initialization for llvm alias analyzer
     //InitializeAliasAnalysis(this, SymbolTableInfo::getDataLayout(&module));
     selectClient(module);
-
+    
     for (u32_t i = PointerAnalysis::FlowS_DDA;
             i < PointerAnalysis::Default_PTA; i++) {
-        if (DDASelected.isSet(i))
+        if (DDASelected.isSet(i)){
             runPointerAnalysis(module, i);
+        }
+            
     }
-
+    
     return false;
 }
 
@@ -149,6 +162,7 @@ void DDAPass::runPointerAnalysis(SVFModule module, u32_t kind)
             _client->performStat(_pta);
 
         if (printQueryPts){
+
             std::string filePath = module.generateFilePath("result.txt");
             printQueryPTS(filePath);
         }
@@ -347,10 +361,21 @@ void DDAPassDispose(SVFDDAPass M){
     delete unwrap(M);
 }
 
-void DDAPassDumpNodeID(SVFDDAPass M, std::string filePath){
-    unwrap(M)->dumpNodeID(filePath);
+void DDAPassRunOnModule(SVFDDAPass P,SVFSVFModule M){
+    unwrap(P)->runOnModuleCXT(*unwrap(M));
 }
 
-void DDAPassPrintQueryPTS(SVFDDAPass M, std::string filePath){
-    unwrap(M)->printQueryPTS(filePath);
+void DDAPassDumpNodeID(SVFDDAPass M, const char* filePath){
+    std::string path = filePath;
+    unwrap(M)->dumpNodeID(path);
+}
+
+void DDAPassPrintQueryPTS(SVFDDAPass M, const char* filePath){
+    std::string path = filePath;
+    unwrap(M)->printQueryPTS(path);
+}
+
+void CLParseCommandLineOptions(int arg_num, char **arg_value, const char * cmd){
+    std::string command = cmd;
+    llvm::cl::ParseCommandLineOptions(arg_num,arg_value,command);
 }
