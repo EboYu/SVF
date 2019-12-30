@@ -559,22 +559,31 @@ const CPAGNodeSet& PointerAnalysis::extractAllValidPtrs(){
             }else{
                 cPAGNode.functionName = "Glob";
             }
-            cPAGNode.location = "";
+            //cPAGNode.location = "";
             if (const Instruction *inst = SVFUtil::dyn_cast<Instruction>(node->getValue())){
                 cPAGNode.variableType =0;
                 std::string str;
                 raw_string_ostream rawstr(str);
-                rawstr<< *inst;
-                cPAGNode.location = rawstr.str().c_str();
+                rawstr<< "" << *inst;
+                // SVFUtil::outs()<<rawstr.str();
+                char * writable = new char[rawstr.str().size() + 1];
+                std::copy(rawstr.str().begin(), rawstr.str().end(), writable);
+                writable[rawstr.str().size()] = '\0'; // don't forget the terminating 0
+                cPAGNode.location = writable;
             }else if (const Argument* argument = SVFUtil::dyn_cast<Argument>(node->getValue())) {
                 cPAGNode.variableType =1;
+                cPAGNode.location = "";
                 cPAGNode.irID=argument->getArgNo();
             }else if (const GlobalVariable* gvar = SVFUtil::dyn_cast<GlobalVariable>(node->getValue())) {
                 cPAGNode.variableType =2;
+                cPAGNode.location = "";
             }else if (const Function* func = SVFUtil::dyn_cast<Function>(node->getValue())) {
                 cPAGNode.variableType =3;
-            }else 
+                cPAGNode.location = "";
+            }else {
                 cPAGNode.variableType =-1;
+                cPAGNode.location = "";
+            }
             cPagNodeSet.insert (itera, std::pair<int, CPAGNode_t>(node->getId(),cPAGNode));
         }
     }
