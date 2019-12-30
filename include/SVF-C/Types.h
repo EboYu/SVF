@@ -14,7 +14,7 @@ extern "C" {
     // typedef struct OpaquePAGNode *SVFPAGNode;
 
     typedef struct CPAGNode_s{
-        int nodeID;
+        long nodeID;
         bool isTLPointer;	/// true === top-level pointer, false ===  address-taken pointer
         const char *functionName;
         int irID;

@@ -380,39 +380,56 @@ void DDAPassInitilize(SVFDDAPass P,SVFSVFModule M){
     dda->_pta->initialize(*module);
 }
 
-const std::map<int, CPAGNode_t>& DDAPassExtractAllValidPtrs(SVFDDAPass M){
-    return unwrap(M)->_pta->extractAllValidPtrs();
-}
-
-void DDAPassPointsToSet(SVFDDAPass M,std::map<int, set<int>> &nodePTSSet){
-     DDAPass *dda = unwrap(M);
-     std::map<int, set<int>>::iterator itera = nodePTSSet.begin();
-     for(PAG::iterator it = dda->_pta->getPAG()->begin(), eit = dda->_pta->getPAG()->end(); it!=eit; it++) {
-        NodeID ptr = it->first;
-        PointsTo pts = dda->_pta->getPts(it->first);
-        if (!pts.empty()) {
-            set<int> NodeSet;
-            for (PointsTo::iterator pit = pts.begin(), peit = pts.end(); pit != peit; ++pit)
-                NodeSet.insert(*pit);
-            nodePTSSet.insert(itera, std::pair<int, set<int>>(ptr,NodeSet));
-        }
-     }
-}
-
 // using pointer ids as a query
 void DDAPassAnswerQuery(SVFDDAPass M, const char* query){
     DDAPass *dda = unwrap(M);
     dda->_client->freshQuery();
     //setup the client for query
     std::string inputQuery = query;
-    u32_t buf; // Have a buffer
-    stringstream ss(inputQuery); // Insert the user input string into a stream
-    while (ss >> buf)
-        dda->_client->setQuery(buf);
+    if (inputQuery != "all") {
+        u32_t buf; // Have a buffer
+        stringstream ss(inputQuery); // Insert the user input string into a stream
+        while (ss >> buf)
+            dda->_client->setQuery(buf);
+    }else{
+        dda->_client->setSolveAll(true);
+    }
     
-    dda->answerQueries(dda->_pta);
-                 
+    dda->_client->answerQueries(dda->_pta);
+    // dda->answerQueries(dda->_pta);
+    dda->_pta->finalize();
 }
+
+
+long DDAPassGetParentNode(SVFDDAPass M,long nodeID){
+    DDAPass *dda = unwrap(M);
+    NodeID id = nodeID;
+    const PAGNode* node = dda->_pta->getPAG()->getPAGNode(id);
+    assert(SVFUtil::isa<ObjPN>(node) && "need an object node");
+    const ObjPN* obj = SVFUtil::cast<ObjPN>(node);
+    return (long)dda->_pta->getPAG()->getObjectNode(obj->getMemObj());
+}
+
+const std::map<long, CPAGNode_t>& DDAPassExtractAllValidPtrs(SVFDDAPass M){
+    return unwrap(M)->_pta->extractAllValidPtrs();
+}
+
+void DDAPassPointsToSet(SVFDDAPass M,std::map<long, set<long>> &nodePTSSet){
+     DDAPass *dda = unwrap(M);
+     std::map<long, set<long>>::iterator itera = nodePTSSet.begin();
+     for(PAG::iterator it = dda->_pta->getPAG()->begin(), eit = dda->_pta->getPAG()->end(); it!=eit; it++) {
+        NodeID ptr = it->first;
+        PointsTo pts = dda->_pta->getPts(it->first);
+        if (!pts.empty()) {
+            set<long> NodeSet;
+            for (PointsTo::iterator pit = pts.begin(), peit = pts.end(); pit != peit; ++pit)
+                NodeSet.insert(*pit);
+            nodePTSSet.insert(itera, std::pair<long, set<long>>(ptr,NodeSet));
+        }
+     }
+}
+
+
 
 void DDAPassDumpNodeID(SVFDDAPass M, const char* filePath){
     std::string path = filePath;

@@ -64,6 +64,9 @@ public:
         solveAll = false;
     }
 
+    void setSolveAll(bool all){
+        solveAll = all;
+    }
     void freshQuery(){
         solveAll = false;
         userInput.clear();

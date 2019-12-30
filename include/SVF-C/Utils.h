@@ -20,8 +20,9 @@ extern "C" {
     void DDAPassPrintQueryPTS(SVFDDAPass M, const char* filePath);
     void DDAPassInitilize(SVFDDAPass P,SVFSVFModule M);
     void DDAPassAnswerQuery(SVFDDAPass M, const char* query);
-    const std::map<int, CPAGNode_t>& DDAPassExtractAllValidPtrs(SVFDDAPass M);
-    void DDAPassPointsToSet(SVFDDAPass M,std::map<int, set<int>> &nodePTSSet);
+    const std::map<long, CPAGNode_t>& DDAPassExtractAllValidPtrs(SVFDDAPass M);
+    void DDAPassPointsToSet(SVFDDAPass M,std::map<long, set<long>> &nodePTSSet);
+    long DDAPassGetParentNode(SVFDDAPass M,long nodeID);
 
     //SVFSVFModule SVFModuleCreate();
     SVFSVFModule SVFModuleCreate(const std::vector<std::string> &moduleNameVec);

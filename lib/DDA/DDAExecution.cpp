@@ -46,7 +46,7 @@ static cl::opt<bool> ENABLECONTEXT("cdaa", cl::init(false),
                                    cl::desc("enable context-sensitivity for demand-driven analysis"));
 
 static cl::opt<bool> ENABLEFLOW("ldaa", cl::init(false),
-                                cl::desc("enable flow-sensitivity for demand-driven analysis"));
+                                cl::desc("enable flow-sensitivity for demand-driven analysis"));                      
 
 bool starting() {
     return true;

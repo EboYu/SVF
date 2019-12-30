@@ -47,7 +47,7 @@ class TypeSystem;
 class SVFModule;
 class ICFG;
 class PTAStat;
-typedef std::map<int, CPAGNode_t> CPAGNodeSet;
+typedef std::map<long, CPAGNode_t> CPAGNodeSet;
 /*
  * Pointer Analysis Base Class
  */

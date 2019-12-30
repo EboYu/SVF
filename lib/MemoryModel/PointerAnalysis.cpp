@@ -541,24 +541,17 @@ bool BVDataPTAImpl::readFromFile(const string& filename) {
     return true;
 }
 
-
-
 const CPAGNodeSet& PointerAnalysis::extractAllValidPtrs(){
-    std::map<int, CPAGNode_t>::iterator itera = cPagNodeSet.begin();
-    for(PAG::iterator it = pag->begin(), eit = pag->end(); it!=eit; it++) {
-        const PAGNode* node = pag->getPAGNode(it->first);
+    std::map<long, CPAGNode_t>::iterator itera = cPagNodeSet.begin();
+    // for(PAG::iterator it = pag->begin(), eit = pag->end(); it!=eit; it++) {
+    //     const PAGNode* node = getPAG()->getPAGNode(it->first);
+        
+    for (NodeSet::iterator nIter = this->getAllValidPtrs().begin();
+            nIter != this->getAllValidPtrs().end(); ++nIter) {
+        const PAGNode* node = getPAG()->getPAGNode(*nIter);
     
         if (!SVFUtil::isa<DummyObjPN>(node) && ! SVFUtil::isa<DummyValPN>(node)){
             CPAGNode_t cPAGNode={};
-            cPAGNode.nodeID = node->getId();
-            cPAGNode.isTLPointer = pag->isValidTopLevelPtr(node);
-            cPAGNode.pointerName = node->getValue()->getName().data();
-            cPAGNode.irID=-1;
-            if(node->getFunction()!=NULL){
-                cPAGNode.functionName =  node->getFunction()->getName().data();
-            }else{
-                cPAGNode.functionName = "Glob";
-            }
             //cPAGNode.location = "";
             if (const Instruction *inst = SVFUtil::dyn_cast<Instruction>(node->getValue())){
                 cPAGNode.variableType =0;
@@ -577,14 +570,27 @@ const CPAGNodeSet& PointerAnalysis::extractAllValidPtrs(){
             }else if (const GlobalVariable* gvar = SVFUtil::dyn_cast<GlobalVariable>(node->getValue())) {
                 cPAGNode.variableType =2;
                 cPAGNode.location = "";
-            }else if (const Function* func = SVFUtil::dyn_cast<Function>(node->getValue())) {
-                cPAGNode.variableType =3;
-                cPAGNode.location = "";
-            }else {
-                cPAGNode.variableType =-1;
-                cPAGNode.location = "";
+            }else 
+                continue;
+            
+            // if (const Function* func = SVFUtil::dyn_cast<Function>(node->getValue())) {
+            //     cPAGNode.variableType =3;
+            //     cPAGNode.location = "";
+            // }else {
+            //     cPAGNode.variableType =-1;
+            //     cPAGNode.location = "";
+            // }
+            cPAGNode.nodeID = node->getId();
+            cPAGNode.isTLPointer = pag->isValidTopLevelPtr(node);
+            cPAGNode.pointerName = node->getValue()->getName().data();
+            cPAGNode.irID=-1;
+            if(node->getFunction()!=NULL){
+                cPAGNode.functionName =  node->getFunction()->getName().data();
+            }else{
+                cPAGNode.functionName = "Glob";
             }
-            cPagNodeSet.insert (itera, std::pair<int, CPAGNode_t>(node->getId(),cPAGNode));
+            
+            cPagNodeSet.insert (itera, std::pair<long, CPAGNode_t>(node->getId(),cPAGNode));
         }
     }
     return cPagNodeSet;
