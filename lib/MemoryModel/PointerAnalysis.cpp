@@ -553,6 +553,7 @@ const CPAGNodeSet& PointerAnalysis::extractAllValidPtrs(){
         if (!SVFUtil::isa<DummyObjPN>(node) && ! SVFUtil::isa<DummyValPN>(node)){
             CPAGNode_t cPAGNode={};
             //cPAGNode.location = "";
+            cPAGNode.irID=-1;
             if (const Instruction *inst = SVFUtil::dyn_cast<Instruction>(node->getValue())){
                 cPAGNode.variableType =0;
                 std::string str;
@@ -583,7 +584,7 @@ const CPAGNodeSet& PointerAnalysis::extractAllValidPtrs(){
             cPAGNode.nodeID = node->getId();
             cPAGNode.isTLPointer = pag->isValidTopLevelPtr(node);
             cPAGNode.pointerName = node->getValue()->getName().data();
-            cPAGNode.irID=-1;
+        
             if(node->getFunction()!=NULL){
                 cPAGNode.functionName =  node->getFunction()->getName().data();
             }else{
