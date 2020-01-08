@@ -556,15 +556,17 @@ const CPAGNodeSet& PointerAnalysis::extractAllValidPtrs(){
             //cPAGNode.location = "";
             cPAGNode.irID=-1;
             if (const Instruction *inst = SVFUtil::dyn_cast<Instruction>(node->getValue())){
-                cPAGNode.variableType =0;
-                std::string str;
-                raw_string_ostream rawstr(str);
-                rawstr<< "" << *inst;
-                // SVFUtil::outs()<<rawstr.str();
-                char * writable = new char[rawstr.str().size() + 1];
-                std::copy(rawstr.str().begin(), rawstr.str().end(), writable);
-                writable[rawstr.str().size()] = '\0'; // don't forget the terminating 0
-                cPAGNode.instruction = writable;
+                if (SVFUtil::isa<AllocaInst>(inst) || inst->getMetadata("dbg")) {
+                    cPAGNode.variableType =0;
+                    std::string str;
+                    raw_string_ostream rawstr(str);
+                    rawstr<< "" << *inst;
+                    // SVFUtil::outs()<<rawstr.str();
+                    char * writable = new char[rawstr.str().size() + 1];
+                    std::copy(rawstr.str().begin(), rawstr.str().end(), writable);
+                    writable[rawstr.str().size()] = '\0'; // don't forget the terminating 0
+                    cPAGNode.instruction = writable;
+                }//
             }else if (const Argument* argument = SVFUtil::dyn_cast<Argument>(node->getValue())) {
                 cPAGNode.variableType =1;
                 cPAGNode.instruction = "";
