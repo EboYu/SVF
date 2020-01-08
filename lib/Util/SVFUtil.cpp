@@ -334,9 +334,70 @@ std::string SVFUtil::getSourceLocOfFunction(const Function *F)
     */
     if (llvm::DISubprogram *SP =  F->getSubprogram()) {
         if (SP->describes(F))
-            rawstr << "in line: " << SP->getLine() << " file: " << SP->getFilename();
+            rawstr << " in line: " << SP->getLine() << " file: " << SP->getFilename();
     }
     return rawstr.str();
+}
+
+u32_t SVFUtil::getLineNumber(const Value* val){
+    if(val==NULL)  return -1;
+
+    if (const Instruction *inst = SVFUtil::dyn_cast<Instruction>(val)) {
+        if (SVFUtil::isa<AllocaInst>(inst)) {
+            for (llvm::DbgInfoIntrinsic *DII : FindDbgAddrUses(const_cast<Instruction*>(inst))) {
+                if (llvm::DbgDeclareInst *DDI = SVFUtil::dyn_cast<llvm::DbgDeclareInst>(DII)) {
+                	llvm::DIVariable *DIVar = SVFUtil::cast<llvm::DIVariable>(DDI->getVariable());
+                    return DIVar->getLine();
+                }
+            }
+        }
+        else if (MDNode *N = inst->getMetadata("dbg")) { // Here I is an LLVM instruction
+        	llvm::DILocation* Loc = SVFUtil::cast<llvm::DILocation>(N);                   // DILocation is in DebugInfo.h
+            return Loc->getLine();
+        }else {
+            if(SVFUtil::isa<GetElementPtrInst>(inst)){
+                // Value *p=inst->getParent();
+                for (Value::const_user_iterator it = inst->user_begin(), ie = inst->user_end();
+                        it != ie; ++it) {
+                        if(const Instruction *sinst = SVFUtil::dyn_cast<Instruction>(*it)){
+                            if (MDNode *N = sinst->getMetadata("dbg")) {
+                                llvm::DILocation* Loc = SVFUtil::cast<llvm::DILocation>(N);                   // DILocation is in DebugInfo.h
+                                return Loc->getLine();
+                            }
+                        }
+                }
+            }
+        }
+    }
+    else if (const Argument* argument = SVFUtil::dyn_cast<Argument>(val)) {
+        if (llvm::DISubprogram *SP = argument->getParent()->getSubprogram()) {
+            if (SP->describes(argument->getParent()))
+                return SP->getLine();
+        }       
+    }else if (const GlobalVariable* gvar = SVFUtil::dyn_cast<GlobalVariable>(val)) {
+        NamedMDNode* CU_Nodes = gvar->getParent()->getNamedMetadata("llvm.dbg.cu");
+        if(CU_Nodes) {
+            for (unsigned i = 0, e = CU_Nodes->getNumOperands(); i != e; ++i) {
+            	llvm::DICompileUnit *CUNode = SVFUtil::cast<llvm::DICompileUnit>(CU_Nodes->getOperand(i));
+                for (llvm::DIGlobalVariableExpression *GV : CUNode->getGlobalVariables()) {
+                	llvm::DIGlobalVariable * DGV = GV->getVariable();
+
+                    if(DGV->getName() == gvar->getName()){
+                        return DGV->getLine();
+                    }
+
+                }
+            }
+        }
+    }
+    else if (const Function* func = SVFUtil::dyn_cast<Function>(val)) {
+        if (llvm::DISubprogram *SP =  func->getSubprogram()) {
+            if (SP->describes(func))
+                return SP->getLine();
+        }       
+    }
+    
+    return -1;
 }
 
 /*!
@@ -354,7 +415,7 @@ std::string SVFUtil::getSourceLoc(const Value* val) {
             for (llvm::DbgInfoIntrinsic *DII : FindDbgAddrUses(const_cast<Instruction*>(inst))) {
                 if (llvm::DbgDeclareInst *DDI = SVFUtil::dyn_cast<llvm::DbgDeclareInst>(DII)) {
                 	llvm::DIVariable *DIVar = SVFUtil::cast<llvm::DIVariable>(DDI->getVariable());
-                    rawstr << "ln: " << DIVar->getLine() << " fl: " << DIVar->getFilename();
+                    rawstr << " ln: " << DIVar->getLine() << " fl: " << DIVar->getFilename();
                     break;
                 }
             }
@@ -364,7 +425,25 @@ std::string SVFUtil::getSourceLoc(const Value* val) {
             unsigned Line = Loc->getLine();
             StringRef File = Loc->getFilename();
             //StringRef Dir = Loc.getDirectory();
-            rawstr << "ln: " << Line << " fl: " << File;
+            rawstr << " ln: " << Line << " fl: " << File;
+        }else {
+            if(SVFUtil::isa<GetElementPtrInst>(inst)){
+                // Value *p=inst->getParent();
+                for (Value::const_user_iterator it = inst->user_begin(), ie = inst->user_end();
+                        it != ie; ++it) {
+                        if(const Instruction *sinst = SVFUtil::dyn_cast<Instruction>(*it)){
+                            if (MDNode *N = sinst->getMetadata("dbg")) {
+                                llvm::DILocation* Loc = SVFUtil::cast<llvm::DILocation>(N);                   // DILocation is in DebugInfo.h
+                                unsigned Line = Loc->getLine();
+                                StringRef File = Loc->getFilename();
+                                rawstr << " ln: " << Line << " fl: " << File;
+                            }
+                        }else{
+                            rawstr << " New GEP in Store without dbg info"<<it->getNumUses();
+                        }
+                }
+            }else 
+                rawstr << " No dbg info";
         }
     }
     else if (const Argument* argument = SVFUtil::dyn_cast<Argument>(val)) {

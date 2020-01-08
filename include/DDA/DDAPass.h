@@ -89,7 +89,7 @@ public:
 
     PointerAnalysis* _pta;	///<  pointer analysis to be executed.
     DDAClient* _client;		///<  DDA client used
-
+    
 };
 DEFINE_SIMPLE_CONVERSION_FUNCTIONS(DDAPass, SVFDDAPass)
 

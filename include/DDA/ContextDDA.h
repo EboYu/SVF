@@ -171,6 +171,8 @@ public:
         return "Context Sensitive DDA";
     }
 
+    virtual void dumpAllPts();
+
 private:
     ConstSVFGEdgeSet insensitveEdges;///< insensitive call-return edges
     FlowDDA* flowDDA;			///< downgrade to flowDDA if out-of-budget

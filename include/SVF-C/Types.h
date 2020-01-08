@@ -19,8 +19,9 @@ extern "C" {
         const char *functionName;
         int irID;
         const char *pointerName;
-        const char *location;
+        const char *instruction;
         int variableType;
+        int lineNum;
     }CPAGNode_t;
 
     bool starting();

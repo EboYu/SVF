@@ -208,7 +208,33 @@ CallSiteID ContextDDA::getCSIDAtRet(CxtLocDPItem& dpm, const SVFGEdge* edge) {
     return 0;
 }
 
+void ContextDDA::dumpAllPts(){
+    for (NodeSet::iterator nIter = CondPTAImpl<ContextCond>::getAllValidPtrs().begin(); 
+        nIter != CondPTAImpl<ContextCond>::getAllValidPtrs().end(); ++nIter) {
+            const PAGNode* node = this->getPAG()->getPAGNode(*nIter);
+            if (CondPTAImpl<ContextCond>::getPAG()->isValidTopLevelPtr(node)) {
+                if (SVFUtil::isa<DummyObjPN>(node)) {
+                    SVFUtil::outs() << "##<Blackhole or constant> id:" << node->getId();
+                }
+                else if (!SVFUtil::isa<DummyValPN>(node)) {
+                    SVFUtil::outs() << "##<" << node->getValue()->getName() << "> ";
+                    SVFUtil::outs() << "Source Loc: " << SVFUtil::getSourceLoc(node->getValue());
+                }
 
+
+                const CxtPtSet& cpts = CondPTAImpl<ContextCond>::getCondPointsTo(node->getId());
+                SVFUtil::outs() << "\nNodeID " << node->getId() << " ";
+                if (cpts.empty()) {
+                    SVFUtil::outs() << "\t\tPointsTo: {empty}\n\n";
+                } else {
+                    SVFUtil::outs() << "\t\tConditional PointsTo: { ";
+                    for (CxtPtSet::iterator it = cpts.begin(), eit = cpts.end(); it != eit; ++it)
+                        SVFUtil::outs() << *it << " ";
+                    SVFUtil::outs() << "}\n\n";
+                }
+            }
+        }
+}
 /// Handle conditions during backward traversing
 bool ContextDDA::handleBKCondition(CxtLocDPItem& dpm, const SVFGEdge* edge) {
     _client->handleStatement(edge->getSrcNode(), dpm.getCurNodeID());

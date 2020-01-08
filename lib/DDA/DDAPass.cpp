@@ -161,6 +161,7 @@ void DDAPass::runPointerAnalysis(SVFModule module, u32_t kind)
         if (_pta->printStat())
             _client->performStat(_pta);
 
+    
         if (printQueryPts){
 
             std::string filePath = module.generateFilePath("result.txt");
@@ -394,10 +395,15 @@ void DDAPassAnswerQuery(SVFDDAPass M, const char* query){
     }else{
         dda->_client->setSolveAll(true);
     }
-    
+
     dda->_client->answerQueries(dda->_pta);
     // dda->answerQueries(dda->_pta);
     dda->_pta->finalize();
+
+    outs()<<" dump conditional pts\n";
+    ContextDDA* cpta =static_cast<ContextDDA*>(dda->_pta);
+    cpta->dumpAllPts();
+
 }
 
 

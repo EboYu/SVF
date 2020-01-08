@@ -255,6 +255,7 @@ void PointerAnalysis::finalize() {
     if(PTSAllPrint)
         dumpAllPts();
 
+    
     if (FuncPointerPrint)
         printIndCSTargets();
 
@@ -563,24 +564,18 @@ const CPAGNodeSet& PointerAnalysis::extractAllValidPtrs(){
                 char * writable = new char[rawstr.str().size() + 1];
                 std::copy(rawstr.str().begin(), rawstr.str().end(), writable);
                 writable[rawstr.str().size()] = '\0'; // don't forget the terminating 0
-                cPAGNode.location = writable;
+                cPAGNode.instruction = writable;
             }else if (const Argument* argument = SVFUtil::dyn_cast<Argument>(node->getValue())) {
                 cPAGNode.variableType =1;
-                cPAGNode.location = "";
+                cPAGNode.instruction = "";
                 cPAGNode.irID=argument->getArgNo();
             }else if (const GlobalVariable* gvar = SVFUtil::dyn_cast<GlobalVariable>(node->getValue())) {
                 cPAGNode.variableType =2;
-                cPAGNode.location = "";
+                cPAGNode.instruction = "";
             }else 
                 continue;
-            
-            // if (const Function* func = SVFUtil::dyn_cast<Function>(node->getValue())) {
-            //     cPAGNode.variableType =3;
-            //     cPAGNode.location = "";
-            // }else {
-            //     cPAGNode.variableType =-1;
-            //     cPAGNode.location = "";
-            // }
+        
+            cPAGNode.lineNum =  SVFUtil::getLineNumber(node->getValue());
             cPAGNode.nodeID = node->getId();
             cPAGNode.isTLPointer = pag->isValidTopLevelPtr(node);
             cPAGNode.pointerName = node->getValue()->getName().data();
