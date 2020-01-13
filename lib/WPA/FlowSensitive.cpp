@@ -498,7 +498,6 @@ bool FlowSensitive::processStore(const StoreSVFGNode* store) {
     }
     double updateEnd = stat->getClk();
     updateTime += (updateEnd - updateStart) / TIMEINTERVAL;
-
     return changed;
 }
 

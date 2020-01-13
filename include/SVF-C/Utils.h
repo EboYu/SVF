@@ -24,6 +24,8 @@ extern "C" {
     void DDAPassPointsToSet(SVFDDAPass M,std::map<long, set<long>> &nodePTSSet);
     long DDAPassGetParentNode(SVFDDAPass M,long nodeID);
 
+    void DDAPassHasWeakUpdatesInPath(SVFDDAPass M);
+
     //SVFSVFModule SVFModuleCreate();
     SVFSVFModule SVFModuleCreate(const std::vector<std::string> &moduleNameVec);
     void SVFSVFModuleDispose(SVFSVFModule M);

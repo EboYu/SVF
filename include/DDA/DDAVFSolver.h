@@ -535,6 +535,9 @@ protected:
         const MemObj* mem =  _pag->getBaseObj(getPtrNodeID(var));
         return mem->isFieldInsensitive();
     }
+    inline DDAStat* getDDAStat(){
+        return ddaStat;
+    }
     //@}
 private:
     /// Map a SVFGNode to its dpms for handling value-flow cycles

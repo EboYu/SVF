@@ -339,7 +339,7 @@ std::string SVFUtil::getSourceLocOfFunction(const Function *F)
     return rawstr.str();
 }
 
-u32_t SVFUtil::getLineNumber(const Value* val){
+int SVFUtil::getLineNumber(const Value* val){
     if(val==NULL)  return -1;
 
     if (const Instruction *inst = SVFUtil::dyn_cast<Instruction>(val)) {
@@ -400,9 +400,46 @@ u32_t SVFUtil::getLineNumber(const Value* val){
     return -1;
 }
 
+
+int SVFUtil::getColumnNumber(const Value* val){
+    if(val==NULL)  return 0;
+
+    if (const Instruction *inst = SVFUtil::dyn_cast<Instruction>(val)) {
+        if (MDNode *N = inst->getMetadata("dbg")) { // Here I is an LLVM instruction
+        	llvm::DILocation* Loc = SVFUtil::cast<llvm::DILocation>(N);                   // DILocation is in DebugInfo.h
+            return Loc->getColumn();
+        }else {
+            if(SVFUtil::isa<GetElementPtrInst>(inst)){
+                // Value *p=inst->getParent();
+                for (Value::const_user_iterator it = inst->user_begin(), ie = inst->user_end();
+                        it != ie; ++it) {
+                        if(const Instruction *sinst = SVFUtil::dyn_cast<Instruction>(*it)){
+                            if (MDNode *N = sinst->getMetadata("dbg")) {
+                                llvm::DILocation* Loc = SVFUtil::cast<llvm::DILocation>(N);                   // DILocation is in DebugInfo.h
+                                return Loc->getColumn();
+                            }
+                        }
+                }
+            }
+        }
+    }    
+    return 0;
+}
 /*!
  * Get the meta data (line number and file name) info of a LLVM value
  */
+
+std::string& SVFUtil::trim(std::string &s) 
+{
+    if (s.empty()) 
+    {
+        return s;
+    }
+    s.erase(0,s.find_first_not_of(" "));
+    s.erase(s.find_last_not_of(" ") + 1);
+    return s;
+}
+
 std::string SVFUtil::getSourceLoc(const Value* val) {
     if(val==NULL)  return "empty val";
 
@@ -468,7 +505,7 @@ std::string SVFUtil::getSourceLoc(const Value* val) {
                 	llvm::DIGlobalVariable * DGV = GV->getVariable();
 
                     if(DGV->getName() == gvar->getName()){
-                        rawstr << "ln: " << DGV->getLine() << " fl: " << DGV->getFilename();
+                        rawstr << " ln: " << DGV->getLine() << " fl: " << DGV->getFilename();
                     }
 
                 }

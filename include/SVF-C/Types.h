@@ -22,6 +22,7 @@ extern "C" {
         const char *instruction;
         int variableType;
         int lineNum;
+        int column;
     }CPAGNode_t;
 
     bool starting();

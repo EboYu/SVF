@@ -171,6 +171,15 @@ public:
         return "Context Sensitive DDA";
     }
 
+    virtual void getStrongUpdateStats(){
+        SVFUtil::outs()<<"Strong update size "<<DDAVFSolver<CxtVar,CxtPtSet,CxtLocDPItem>::getDDAStat()->_StrongUpdateStores.count()<<"\n";
+        for(NodeBS::iterator it=DDAVFSolver<CxtVar,CxtPtSet,CxtLocDPItem>::getDDAStat()->_StrongUpdateStores.begin(),
+        eit=DDAVFSolver<CxtVar,CxtPtSet,CxtLocDPItem>::getDDAStat()->_StrongUpdateStores.end();it!=eit; it++){
+            SVFUtil::outs()<<*it<<" ";
+        }
+        SVFUtil::outs()<<" \n";
+    }
+
     virtual void dumpAllPts();
 
 private:

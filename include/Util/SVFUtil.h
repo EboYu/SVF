@@ -572,8 +572,9 @@ u32_t getBBPredecessorPos(const BasicBlock *BB, const BasicBlock *Pred);
 u32_t getBBPredecessorNum(const BasicBlock *BB);
 
 /// Get the line number in the source file of val
-u32_t getLineNumber(const Value* val);
-
+int getLineNumber(const Value* val);
+int getColumnNumber(const Value* val);
+std::string& trim(std::string &s);
 /// Return source code including line number and file name from debug information
 //@{
 std::string  getSourceLoc(const Value *val);

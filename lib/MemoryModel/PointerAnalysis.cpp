@@ -555,18 +555,22 @@ const CPAGNodeSet& PointerAnalysis::extractAllValidPtrs(){
             CPAGNode_t cPAGNode={};
             //cPAGNode.location = "";
             cPAGNode.irID=-1;
+            cPAGNode.pointerName = node->getValue()->getName().data();
             if (const Instruction *inst = SVFUtil::dyn_cast<Instruction>(node->getValue())){
-                if (SVFUtil::isa<AllocaInst>(inst) || inst->getMetadata("dbg")) {
+                // if (SVFUtil::isa<AllocaInst>(inst) || inst->getMetadata("dbg")) {
                     cPAGNode.variableType =0;
                     std::string str;
                     raw_string_ostream rawstr(str);
                     rawstr<< "" << *inst;
-                    // SVFUtil::outs()<<rawstr.str();
-                    char * writable = new char[rawstr.str().size() + 1];
-                    std::copy(rawstr.str().begin(), rawstr.str().end(), writable);
-                    writable[rawstr.str().size()] = '\0'; // don't forget the terminating 0
+                    str=SVFUtil::trim(rawstr.str());
+                    char * writable = new char[str.size() + 1];
+                    std::copy(str.begin(), str.end(), writable);
+                    writable[str.size()] = '\0'; // don't forget the terminating 0
                     cPAGNode.instruction = writable;
-                }//
+                // }else
+                // {
+                //     continue;
+                // }
             }else if (const Argument* argument = SVFUtil::dyn_cast<Argument>(node->getValue())) {
                 cPAGNode.variableType =1;
                 cPAGNode.instruction = "";
@@ -574,13 +578,15 @@ const CPAGNodeSet& PointerAnalysis::extractAllValidPtrs(){
             }else if (const GlobalVariable* gvar = SVFUtil::dyn_cast<GlobalVariable>(node->getValue())) {
                 cPAGNode.variableType =2;
                 cPAGNode.instruction = "";
+                
             }else 
                 continue;
         
             cPAGNode.lineNum =  SVFUtil::getLineNumber(node->getValue());
+            cPAGNode.column =  SVFUtil::getColumnNumber(node->getValue());
             cPAGNode.nodeID = node->getId();
             cPAGNode.isTLPointer = pag->isValidTopLevelPtr(node);
-            cPAGNode.pointerName = node->getValue()->getName().data();
+            
         
             if(node->getFunction()!=NULL){
                 cPAGNode.functionName =  node->getFunction()->getName().data();

@@ -163,7 +163,6 @@ void DDAPass::runPointerAnalysis(SVFModule module, u32_t kind)
 
     
         if (printQueryPts){
-
             std::string filePath = module.generateFilePath("result.txt");
             printQueryPTS(filePath);
         }
@@ -445,6 +444,12 @@ void DDAPassDumpNodeID(SVFDDAPass M, const char* filePath){
 void DDAPassPrintQueryPTS(SVFDDAPass M, const char* filePath){
     std::string path = filePath;
     unwrap(M)->printQueryPTS(path);
+}
+
+void DDAPassHasWeakUpdatesInPath(SVFDDAPass M){
+    DDAPass *dda = unwrap(M);
+    ContextDDA* cpta =static_cast<ContextDDA*>(dda->_pta);
+    cpta->getStrongUpdateStats();
 }
 
 void CLParseCommandLineOptions(int arg_num, char **arg_value, const char * cmd){

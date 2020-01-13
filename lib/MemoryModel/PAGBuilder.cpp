@@ -444,13 +444,13 @@ void PAGBuilder::visitLoadInst(LoadInst &inst) {
 void PAGBuilder::visitStoreInst(StoreInst &inst) {
     // StoreInst itself should always not be a pointer type
 	assert(!SVFUtil::isa<PointerType>(inst.getType()));
-
+    
 	DBOUT(DPAGBuild, outs() << "process store " << inst << " \n");
 
 	NodeID dst = getValueNode(inst.getPointerOperand());
 
 	NodeID src = getValueNode(inst.getValueOperand());
-
+    outs() << "process store " << inst << " "<<src<<" "<<dst<<"\n";
 	pag->addStoreEdge(src, dst);
 
 }
